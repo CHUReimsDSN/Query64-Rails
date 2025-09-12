@@ -21,7 +21,7 @@ jobs:
         run: bundle install --gemfile=.github/workflows/Gemfile.docs
 
       - name: Run YARD
-        run: bundle exec yardoc --format=markdown --no-output
+        run: bundle exec --gemfile=.github/workflows/Gemfile.docs yardoc --format=markdown --no-output
 
       - name: Generate API Markdown
         run: bundle exec --gemfile=.github/workflows/Gemfile.docs ruby scripts/generate_api_doc.rb
