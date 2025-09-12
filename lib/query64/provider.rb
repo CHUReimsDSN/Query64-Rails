@@ -387,15 +387,15 @@ module Query64
 
       entries_filter = []
       if self.resource_class.respond_to?(:query64_additional_row_filters)
-        method_additional_row = self.resource_class.method(:query64_additional_row_filters)
-        if method_additional_row.parameters.any?
-          entries_filter = method_additional_row.call(self.extra_parameters)
+        method_additional_row_filter = self.resource_class.method(:query64_additional_row_filters)
+        if method_additional_row_filter.parameters.any?
+          entries_filter = method_additional_row_filter.call(self.context)
         else
-          entries_filter = method_additional_row.call
+          entries_filter = method_additional_row_filter.call
         end
       end
       entries_filter.each do |entry|
-        result_statement = entry[:statement].call(Query64.current_user)
+        result_statement = entry[:statement].call
         if !result_statement
           next
         end

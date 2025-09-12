@@ -127,11 +127,11 @@ module Query64
       join_sub_request_array = []
       join_count_array = []
       join_group_array = []
-      self.provider.joins_data.each do |join_key, join_value|
+      self.provider.joins_data.each do |_join_key, join_value|
         join_value[:paths_to_join].each do |path_to_join|
           join_sql = """
-            LEFT OUTER JOIN #{path_to_join[:foreign_table_name]} 
-            AS #{path_to_join[:foreign_table_alias]} 
+            LEFT OUTER JOIN #{path_to_join[:foreign_table_name]}
+            AS #{path_to_join[:foreign_table_alias]}
             ON #{path_to_join[:foreign_table_alias]}.#{path_to_join[:foreign_table_key]} = #{path_to_join[:primary_table_alias]}.#{path_to_join[:primary_table_key]}
           """
           if join_value[:enabled_for_sub_request]
@@ -144,8 +144,8 @@ module Query64
         if join_value[:enabled_for_count] == true
           join_value[:paths_to_join_count].each do |path_to_join_count|
             join_sql = """
-              LEFT OUTER JOIN #{path_to_join_count[:foreign_table_name]} 
-              AS #{path_to_join_count[:foreign_table_alias]} 
+              LEFT OUTER JOIN #{path_to_join_count[:foreign_table_name]}
+              AS #{path_to_join_count[:foreign_table_alias]}
               ON #{path_to_join_count[:foreign_table_alias]}.#{path_to_join_count[:foreign_table_key]} = #{path_to_join_count[:primary_table_alias]}.#{path_to_join_count[:primary_table_key]}
             """
             join_count_array << join_sql
@@ -155,8 +155,8 @@ module Query64
         if join_value[:enabled_for_group] == true
           join_value[:paths_to_join_group].each do |path_to_join_count|
             join_sql = """
-              LEFT OUTER JOIN #{path_to_join_count[:foreign_table_name]} 
-              AS #{path_to_join_count[:foreign_table_alias]} 
+              LEFT OUTER JOIN #{path_to_join_count[:foreign_table_name]}
+              AS #{path_to_join_count[:foreign_table_alias]}
               ON #{path_to_join_count[:foreign_table_alias]}.#{path_to_join_count[:foreign_table_key]} = #{path_to_join_count[:primary_table_alias]}.#{path_to_join_count[:primary_table_key]}
             """
             join_group_array << join_sql
@@ -176,10 +176,10 @@ module Query64
         self.provider.filters.each do |filter_params|
 
           column_meta_data = filter_params[:column_meta_data]
-  
+
           case column_meta_data[:field_type]
             when :boolean
-              filter_params[:conditions].each do |condition| 
+              filter_params[:conditions].each do |condition|
                 bool_value = false
                 true_variants = ['oui', 'ou', 'o', 'true'];
                 false_variants = ['non', 'no', 'n', 'false'];
@@ -192,7 +192,7 @@ module Query64
                 condition[:type] = 'equals'
                 condition[:filter] = bool_value
               end
-  
+
             when :object
               next
           end
@@ -230,10 +230,10 @@ module Query64
                   else
                     fragments << "#{table_alias}.#{column_name} IN (#{condition[:filters].map{|filter| "'#{filter}'"}.join(', ')}"
                 end
-              
+
               when 'contains'
                 fragments << "#{table_alias}.#{column_name} ILIKE '%#{condition[:filter]}%'"
-  
+
               when 'equals'
                 case column_meta_data[:field_type]
                   when :number
@@ -245,8 +245,8 @@ module Query64
                   else
                     fragments << "#{table_alias}.#{column_name} = '#{condition[:filter]}'"
                 end
-  
-  
+
+
               when 'notEqual'
                 case column_meta_data[:field_type]
                   when :number
@@ -258,20 +258,20 @@ module Query64
                   else
                     fragments << "#{table_alias}.#{column_name} != '#{condition[:filter]}'"
                 end
-  
-  
+
+
               when 'notContains'
                 fragments << "#{table_alias}.#{column_name} NOT ILIKE '%#{condition[:filter]}%'"
-  
-  
+
+
               when 'empty'
                 fragments << "#{table_alias}.#{column_name} IS NULL"
-  
-                
+
+
               when 'notEmpty'
                 fragments << "#{table_alias}.#{column_name} IS NOT NULL"
-  
-  
+
+
               when 'greaterThan'
                 case column_meta_data[:field_type]
                   when :number
@@ -279,8 +279,8 @@ module Query64
                   when :date
                     fragments << "#{table_alias}.#{column_name} > '#{condition[:dateFrom]}'"
                 end
-  
-  
+
+
               when 'lessThan'
                 case column_meta_data[:field_type]
                   when :number
@@ -288,8 +288,8 @@ module Query64
                   when :date
                     fragments << "#{table_alias}.#{column_name} < '#{condition[:dateFrom]}'"
                 end
-  
-  
+
+
               when 'inRange'
                 case column_meta_data[:field_type]
                   when :number
@@ -306,10 +306,10 @@ module Query64
             where_fragments << fragments.join(' AND ')
           end
         end
-  
-        where_sql = where_fragments.each_with_index.reduce("") do |acc, (where_fragment, index)| 
+
+        where_sql = where_fragments.each_with_index.reduce("") do |acc, (where_fragment, index)|
           if index == 0
-            acc += "(#{where_fragment})"            
+            acc += "(#{where_fragment})"
           else
             acc += "AND (#{where_fragment})"
           end
@@ -345,7 +345,7 @@ module Query64
       request_has_join = false
       sub_request_has_join = false
       self.provider.columns_to_select_meta_data.each do |column_meta_data|
-        
+
         if column_meta_data[:association_name] != nil
           join_data = self.provider.joins_data[column_meta_data[:association_name]]
           if join_data.nil?
@@ -361,7 +361,7 @@ module Query64
           if column_is_sorted
             group_columns_sub_request << "#{join_data[:alias_label]}.#{column_meta_data[:raw_field_name]}"
           end
-          
+
           if select_association_name_already_done.include?(column_meta_data[:association_name])
             next
           end
@@ -407,7 +407,7 @@ module Query64
             table_alias = self.provider.alias_start_table
           end
         end
-        
+
         sort_clauses_array << "#{table_alias}.#{column_name} #{sort[:sort]}"
       end
       sort_sql = sort_clauses_array.join(', ')
