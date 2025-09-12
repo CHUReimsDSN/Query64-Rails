@@ -2,7 +2,6 @@
 
 require_relative "query64/builder"
 require_relative "query64/meta_data_provider"
-require_relative "query64/parameters"
 require_relative "query64/provider"
 require_relative "query64/query64_exception"
 require_relative "query64/utils"
@@ -19,7 +18,7 @@ module Query64
     rescue Exception
       raise Query64Exception.new("This resource does not exist : #{resource_name}", 400)
     end
-    if !resource_class.singleton_class.ancestors.include?(Query64::MetaDataProvider)
+    if !resource_class.singleton_class.ancestors.include?(Query64::MetadataProvider)
       raise Query64Exception.new("This resource does not extend Query64 : #{resource_name}", 400)
     end
     Builder.get_results(params[:query64Params])
@@ -35,7 +34,7 @@ module Query64
     rescue Exception
       raise Query64Exception.new("This resource does not exist : #{resource_name}", 400)
     end
-    if !resource_class.singleton_class.ancestors.include?(Query64::MetaDataProvider)
+    if !resource_class.singleton_class.ancestors.include?(Query64::MetadataProvider)
       raise Query64Exception.new("This resource does not extend Query64 : #{resource_name}", 400)
     end
     context = params[:query64Params][:context]

@@ -2,10 +2,10 @@ require 'active_record'
 
 module Query64
         
-  module MetaDataProvider
+  module MetadataProvider
     def self.extended(base)
       unless base < ActiveRecord::Base
-        raise "#{base} must inherit from ActiveRecord::Base to extend Query64::MetaDataProvider"
+        raise "#{base} must inherit from ActiveRecord::Base to extend Query64::MetadataProvider"
       end
     end
 
@@ -28,10 +28,10 @@ module Query64
       policy_base_resource = policies.find do |policy|
         policy[:association_name].nil?
       end
-      if Query64.current_user && policy_base_resource.nil?
+      if policy_base_resource.nil?
         policies.unshift({
           columns_to_include: ['*'],
-          allowed: -> (_current_user) { true },
+          statement: -> { true },
         })
       end
       policies.each_with_index do |policy, policy_index|
@@ -45,11 +45,11 @@ module Query64
         if policy[:columns_to_exclude].nil?
           policy[:columns_to_exclude] = []
         end
-        if policy[:allowed].nil?
-          policy[:allowed] = -> (_current_user) { false }
+        if policy[:statement].nil?
+          policy[:statement] = -> { false }
         end
 
-        result_policy = policy[:allowed].call(Query64.current_user)
+        result_policy = policy[:statement].call
         if !result_policy
           next
         end
