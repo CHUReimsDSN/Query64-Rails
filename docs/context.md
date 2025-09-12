@@ -18,14 +18,14 @@ def self.query64_column_builder(context)
     return [
       {
         columns_to_include: ['id', 'prenom', 'nom'],
-        allowed: -> { User.current != nil }
+        statement: -> { User.current != nil }
       }
     ]
   else
     return [
       {
         columns_to_include: ['id', 'age', 'adresse'],
-        allowed: -> { User.current != nil }
+        statement: -> { User.current != nil }
       }
     ]
   end

@@ -14,7 +14,7 @@ class MonModele < ApplicationRecord
     [
       {
         columns_to_include: ['*'],
-        allowed: -> { true }
+        statement: -> { true }
       }
     ]
   end

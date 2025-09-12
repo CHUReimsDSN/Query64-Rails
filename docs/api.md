@@ -1,8 +1,8 @@
 ---
 title: API
-has_children: true
-nav_order: 200
 layout: default
+has_children: true
+nav_order: 1000
 ---
 # API
 
