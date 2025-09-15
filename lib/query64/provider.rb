@@ -327,7 +327,7 @@ module Query64
         end
         group_segment_string << group_keys[entry_index]&.gsub(" ", "_").gsub("-", "_").gsub(":", "_")
       end
-      group_segment_string = group_segment_string.join("/")
+      group_segment_string = group_segment_string.join("__")
 
       self.group_mode_data = {
         group_index: group_index,
