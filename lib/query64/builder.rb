@@ -263,7 +263,6 @@ module Query64
               when 'notContains'
                 fragments << "#{table_alias}.#{column_name} NOT ILIKE '%#{condition[:filter]}%'"
 
-
               when 'empty'
                 fragments << "#{table_alias}.#{column_name} IS NULL"
 
@@ -464,10 +463,10 @@ module Query64
       items = self.provider.resource_class.connection.execute(items_sql).to_a
         resource_name = self.provider.group_mode_data[:group_column_table_name]
         column_name = self.provider.group_mode_data[:group_column_metadata][:raw_field_name]
-        items = items.map do |row|
+        items = items.map do |row, index|
           value = row[column_name].to_s
           {
-            __id: "#{resource_name}/#{resource_name}/#{value}",
+            __id: "#{resource_name}/#{resource_name}/#{value}/#{index}",
             __group_key: value,
             __label: value,
             __childCount: row["count"],
