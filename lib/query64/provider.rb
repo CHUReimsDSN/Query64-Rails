@@ -321,13 +321,13 @@ module Query64
 
       group_segment_string = []
       self.groups.each_with_index do |entry, entry_index|
-        group_segment_string << entry[:id]&.gsub(" ", "").gsub("-", "").gsub(":", "").gsub("_", "")
+        group_segment_string << entry[:id]
         if entry_index == group_index
           break
         end
-        group_segment_string << group_keys[entry_index]&.gsub(" ", "").gsub("-", "").gsub(":", "")
+        group_segment_string << group_keys[entry_index]
       end
-      group_segment_string = group_segment_string.join("")
+      group_segment_string = group_segment_string.join("/")
 
       self.group_mode_data = {
         group_index: group_index,
