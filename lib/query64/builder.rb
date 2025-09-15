@@ -466,9 +466,9 @@ module Query64
         group_segment_string = self.provider.group_mode_data[:group_segment_string]
         items = items.map do |row|
           value = row[column_name].to_s
-          flat_value = value&.gsub(" ", "_").gsub("-", "_").gsub(":", "_")
+          flat_value = value&.gsub(" ", "").gsub("-", "").gsub(":", "")
           {
-            __id: "#{resource_name}__#{group_segment_string}__#{flat_value}",
+            __id: "#{resource_name}#{group_segment_string}#{flat_value}",
             __group_key: value,
             __label: value,
             __childCount: row["count"],
