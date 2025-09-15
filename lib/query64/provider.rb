@@ -325,7 +325,7 @@ module Query64
         if entry_index == group_index
           break
         end
-        group_segment_string << group_keys[entry_index]&.gsub(" ", "_")
+        group_segment_string << group_keys[entry_index]&.gsub(" ", "_").gsub("-", "_").gsub(":", "_")
       end
       group_segment_string = group_segment_string.join("/")
 
