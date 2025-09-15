@@ -267,10 +267,11 @@ module Query64
               when 'empty'
                 fragments << "#{table_alias}.#{column_name} IS NULL"
 
+              when 'blank'
+                fragments << "#{table_alias}.#{column_name} IS NULL"
 
               when 'notEmpty'
                 fragments << "#{table_alias}.#{column_name} IS NOT NULL"
-
 
               when 'greaterThan'
                 case column_meta_data[:field_type]
@@ -279,7 +280,6 @@ module Query64
                   when :date
                     fragments << "#{table_alias}.#{column_name} > '#{condition[:dateFrom]}'"
                 end
-
 
               when 'lessThan'
                 case column_meta_data[:field_type]
