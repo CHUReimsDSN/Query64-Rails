@@ -319,11 +319,21 @@ module Query64
         resource_table_alias = self.alias_start_table
       end
 
+      group_segment_string = []
+      self.groups.each_with_index do |entry, entry_index|
+        group_segment_string << "#{entry[:id]}"
+        if entry_index == group_index
+          break
+        end
+      end
+      group_segment_string = group_segment_string.join("/")
+
       self.group_mode_data = {
         group_index: group_index,
         group_column_metadata: column_meta_data,
         group_column_table_name: resource_table_name,
-        group_column_table_alias: resource_table_alias 
+        group_column_table_alias: resource_table_alias,
+        group_segment_string: group_segment_string
       }
     end
 
