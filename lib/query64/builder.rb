@@ -463,10 +463,10 @@ module Query64
       items = self.provider.resource_class.connection.execute(items_sql).to_a
         resource_name = self.provider.group_mode_data[:group_column_table_name]
         column_name = self.provider.group_mode_data[:group_column_metadata][:raw_field_name]
-        items = items.map do |row, index|
+        items = items.map.with_index do |row, row_index|
           value = row[column_name].to_s
           {
-            __id: "#{resource_name}/#{resource_name}/#{value}/#{index}",
+            __id: "#{resource_name}/#{resource_name}/#{value}/#{row_index}",
             __group_key: value,
             __label: value,
             __childCount: row["count"],
