@@ -322,10 +322,10 @@ module Query64
       group_segment_string = []
       self.groups.each_with_index do |entry, entry_index|
         group_segment_string << entry[:id]
-        group_segment_string << group_keys[entry_index].gsub(" ", "_")
         if entry_index == group_index
           break
         end
+        group_segment_string << group_keys[entry_index]&.gsub(" ", "_")
       end
       group_segment_string = group_segment_string.join("/")
 
