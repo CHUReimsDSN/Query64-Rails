@@ -321,7 +321,7 @@ module Query64
 
       group_segment_string = []
       self.groups.each_with_index do |entry, entry_index|
-        group_segment_string << entry[:id]&.gsub(" ", "").gsub("-", "").gsub(":", "")
+        group_segment_string << entry[:id]&.gsub(" ", "").gsub("-", "").gsub(":", "").gsub("_", "")
         if entry_index == group_index
           break
         end
