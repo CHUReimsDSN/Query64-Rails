@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "query64/builder"
-require_relative "query64/meta_data_provider"
+require_relative "query64/metadata_provider"
 require_relative "query64/provider"
 require_relative "query64/query64_exception"
 require_relative "query64/utils"
