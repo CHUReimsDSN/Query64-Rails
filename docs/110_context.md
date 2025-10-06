@@ -1,7 +1,5 @@
 ---
 title: Contexte
-layout: default
-nav_order: 110
 ---
 
 # Contexte

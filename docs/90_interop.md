@@ -1,8 +1,7 @@
 ---
 title: Interopérabilité
-layout: default
-nav_order: 90
 ---
+
 # Interopérabilité
 
 Query64 repose sur la communication entre un client et un serveur.

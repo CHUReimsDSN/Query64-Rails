@@ -1,8 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="a33a040a-9888-40c3-9844-f0a533186b3d" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.github/workflows/Gemfile.docs" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/Gemfile.docs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/docs.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/docs.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Gemfile" beforeDir="false" afterPath="$PROJECT_DIR$/Gemfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Gemfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Gemfile.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/api.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/column_def.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/context.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/contribute.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/dictionary.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/filter.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/index.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/install.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/interop.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/quick_start.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/specific.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/todo.md" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/query64/builder.rb" beforeDir="false" afterPath="$PROJECT_DIR$/lib/query64/builder.rb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/generate_api_doc.rb" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -12,9 +32,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 7
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
   <component name="ProjectId" id="32EPyv7qG4HiNxGKjktPJR49ilq" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -25,9 +45,9 @@
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "com.intellij.lang.ruby.rbs.tools.collection.workspace.sync.RbsCollectionUpdateProjectActivity#LAST_UPDATE_TIMESTAMP": "1756983077207",
+    "com.intellij.lang.ruby.rbs.tools.collection.workspace.sync.RbsCollectionUpdateProjectActivity#LAST_UPDATE_TIMESTAMP": "1758204568656",
     "git-widget-placeholder": "dev",
-    "last_opened_file_path": "/home/ost/Dev/submit64",
+    "last_opened_file_path": "/home/ost/Dev/query64/server/query64-rails",
     "ruby.structure.view.model.defaults.configured": "true"
   }
 }]]></component>
@@ -40,6 +60,7 @@
       <option name="presentableId" value="Default" />
       <updated>1756983017192</updated>
       <workItem from="1756983018366" duration="114000" />
+      <workItem from="1758204510282" duration="706000" />
     </task>
     <servers />
   </component>
