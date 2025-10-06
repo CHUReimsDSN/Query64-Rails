@@ -4,8 +4,12 @@ module Query64
     attr_accessor :http_status
 
     def initialize(message, http_status)
-      super("Query64Exception -> #{message}")
+      super(message)
       self.http_status = http_status
+    end
+
+    def self.new_with_prefix(message, http_status)
+      new("Query64Exception -> #{message}", http_status)
     end
 
   end
