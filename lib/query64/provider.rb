@@ -76,7 +76,7 @@ module Query64
         
         if filter_params[:conditions].nil?
           sanitized_filter_params = {}
-          sanitized_filter_params[:operator] = 'AND'
+          sanitized_filter_params[:operator] = "AND"
           sanitized_filter_params[:conditions] = [filter_params]
         else
           sanitized_filter_params = filter_params

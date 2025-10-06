@@ -1,8 +1,8 @@
 ---
-title: Définitions des dictionnaires
+title: Définitions des filtres
 ---
 
-# Définitions des dictionnaires
+# Définitions des filtres
 
 Il est également possible de filtrer les lignes selon une logique.
 
