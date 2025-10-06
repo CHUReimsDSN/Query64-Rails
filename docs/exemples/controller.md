@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Utilisation simple dans un controller
+parent: Exemples
 ---
 
 # Utilisation simple dans un controller
