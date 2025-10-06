@@ -1,7 +1,5 @@
 ---
 title: Définitions des colonnes
-layout: default
-nav_order: 50
 ---
 
 # Définitions des colonnes

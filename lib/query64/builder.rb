@@ -181,8 +181,8 @@ module Query64
             when :boolean
               filter_params[:conditions].each do |condition|
                 bool_value = false
-                true_variants = ['oui', 'ou', 'o', 'true'];
-                false_variants = ['non', 'no', 'n', 'false'];
+                true_variants = ['oui', 'ou', 'o', 'true']
+                false_variants = ['non', 'no', 'n', 'false']
                 if true_variants.include?(condition[:filter].to_s.downcase)
                   bool_value = true
                 end
@@ -193,8 +193,8 @@ module Query64
                 condition[:filter] = bool_value
               end
 
-            when :object
-              next
+          else
+            nil
           end
 
           if !column_meta_data[:association_name].nil?
@@ -220,7 +220,7 @@ module Query64
           filter_params[:conditions].each do |condition|
             case condition[:type]
 
-              when 'in'
+            when 'in'
                 if condition[:filters].empty?
                   next
                 end
@@ -231,10 +231,10 @@ module Query64
                     fragments << "#{table_alias}.#{column_name} IN (#{condition[:filters].map{|filter| "'#{filter}'"}.join(', ')}"
                 end
 
-              when 'contains'
+            when 'contains'
                 fragments << "#{table_alias}.#{column_name} ILIKE '%#{condition[:filter]}%'"
 
-              when 'equals'
+            when 'equals'
                 case column_meta_data[:field_type]
                   when :number
                     if condition[:filter] == ""
@@ -247,7 +247,7 @@ module Query64
                 end
 
 
-              when 'notEqual'
+            when 'notEqual'
                 case column_meta_data[:field_type]
                   when :number
                     if condition[:filter] == ""
@@ -260,42 +260,50 @@ module Query64
                 end
 
 
-              when 'notContains'
+            when 'notContains'
                 fragments << "#{table_alias}.#{column_name} NOT ILIKE '%#{condition[:filter]}%'"
 
-              when 'empty'
+            when 'empty'
                 fragments << "#{table_alias}.#{column_name} IS NULL"
 
-              when 'blank'
+            when 'blank'
                 fragments << "#{table_alias}.#{column_name} IS NULL"
 
-              when 'notEmpty'
+            when 'notEmpty'
                 fragments << "#{table_alias}.#{column_name} IS NOT NULL"
 
-              when 'greaterThan'
+            when 'greaterThan'
                 case column_meta_data[:field_type]
                   when :number
                     fragments << "#{table_alias}.#{column_name} > #{condition[:filter]}"
                   when :date
                     fragments << "#{table_alias}.#{column_name} > '#{condition[:dateFrom]}'"
+                else
+                  nil
                 end
 
-              when 'lessThan'
+            when 'lessThan'
                 case column_meta_data[:field_type]
                   when :number
                     fragments << "#{table_alias}.#{column_name} < #{condition[:filter]}"
                   when :date
                     fragments << "#{table_alias}.#{column_name} < '#{condition[:dateFrom]}'"
+                else
+                  nil
                 end
 
 
-              when 'inRange'
-                case column_meta_data[:field_type]
-                  when :number
+            when 'inRange'
+              case column_meta_data[:field_type]
+              when :number
                     fragments << "#{table_alias}.#{column_name} BETWEEN #{condition[:filter]} AND #{condition[:filterTo]}"
-                  when :date
+              when :date
                     fragments << "#{table_alias}.#{column_name} BETWEEN '#{condition[:dateFrom]}' AND '#{condition[:dateTo]}'"
-                end
+              else
+                nil
+              end
+            else
+              nil
             end
           end
           if filter_params[:operator] == 'OR'

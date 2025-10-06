@@ -1,7 +1,5 @@
 ---
 title: Définitions des dictionnaires
-layout: default
-nav_order: 60
 ---
 
 # Définitions des dictionnaires

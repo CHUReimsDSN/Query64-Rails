@@ -1,7 +1,5 @@
 ---
 title: Spécificités
-layout: default
-nav_order: 80
 ---
 
 # Spécificités

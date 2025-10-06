@@ -1,8 +1,7 @@
 ---
 title: Démarage rapide
-layout: default
-nav_order: 40
 ---
+
 # Démarrage rapide
 
 Activer l'exploitation des données pour un modèle :
