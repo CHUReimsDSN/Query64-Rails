@@ -167,7 +167,7 @@ module Query64
       allowed_columns_metadata
     end
 
-    def query64_get_all_columns_metadata
+    def query64_get_all_columns_metadata(context = nil)
       metadata = []
       self.columns_hash.each do |key_column, value_column|
         label_name = query64_beautify_column_name(key_column, nil, context)
