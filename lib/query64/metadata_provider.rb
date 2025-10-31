@@ -114,7 +114,7 @@ module Query64
         end
       end
 
-      metadata = [] # TODO mettre en cache en lancement du server
+      metadata = []
       self.columns_hash.each do |key_column, value_column|
         label_name = query64_beautify_column_name(key_column, nil, context)
         field_type = query64_get_column_type_by_sql_type(value_column.type)        
@@ -165,6 +165,24 @@ module Query64
         metadat_a[:index].to_i - metadat_b[:index].to_i
       end
       allowed_columns_metadata
+    end
+
+    def query64_get_all_columns_metadata(context = nil)
+      metadata = []
+      self.columns_hash.each do |key_column, value_column|
+        label_name = query64_beautify_column_name(key_column, nil, context)
+        field_type = query64_get_column_type_by_sql_type(value_column.type)        
+        metadata << {
+          raw_field_name: key_column,
+          field_name: key_column,
+          label_name: label_name,
+          field_type: field_type,
+          association_name: nil,
+          association_type: nil,
+          association_class_name: nil,
+        }
+      end
+      metadata
     end
 
     def query64_serialize_relation_key_column(association, key_column)
