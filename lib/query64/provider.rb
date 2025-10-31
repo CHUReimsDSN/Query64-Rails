@@ -405,7 +405,7 @@ module Query64
           resource_class = self.resource_class
         end
       rescue Exception
-        raise Query64Exception.new("This resource does not exist : #{deserialized_column_filter[:raw_field_name]}", 400)
+        raise Query64Exception.new("This resource does not exist : #{deserialized_column_filter[:association_name]}", 400)
       end
       resource_class.query64_get_all_columns_metadata(self.context).find do |column_to_select|
         deserialized_column_filter[:raw_field_name] == column_to_select[:raw_field_name]

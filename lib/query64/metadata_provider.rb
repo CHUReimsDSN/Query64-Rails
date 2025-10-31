@@ -182,6 +182,7 @@ module Query64
           association_class_name: nil,
         }
       end
+      metadata
     end
 
     def query64_serialize_relation_key_column(association, key_column)
