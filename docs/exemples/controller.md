@@ -2,9 +2,11 @@
 layout: default
 title: Utilisation simple dans un controller
 parent: Exemples
+nav_order: 1
 ---
 
-# Utilisation simple dans un controller
+# Utilisation simple dans un controller  
+
 
 ```ruby
 # generic_controller.rb
