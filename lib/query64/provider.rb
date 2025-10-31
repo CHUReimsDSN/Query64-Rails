@@ -399,7 +399,11 @@ module Query64
     def find_column_metadata_outside_select(column_serialized_name)
       deserialized_column_filter = self.resource_class.query64_deserialize_relation_key_column(column_serialized_name)
       begin
-        resource_class = deserialized_column_filter[:raw_field_name].constantize
+        if (deserialized_column_filter[:association_name])
+          resource_class = deserialized_column_filter[:association_name].constantize
+        else
+          resource_class = self.resource_class
+        end
       rescue Exception
         raise Query64Exception.new("This resource does not exist : #{deserialized_column_filter[:raw_field_name]}", 400)
       end

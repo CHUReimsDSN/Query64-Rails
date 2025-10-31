@@ -16,5 +16,5 @@ bundle install
 
 ``` ruby
 # Gemfile
-gem 'query64', git: 'https://github.com/CHUReimsDSN/Query64-Rails.git#nom_de_la_branche'
+gem 'query64', git: 'https://github.com/CHUReimsDSN/Query64-Rails.git', branch: 'nom_de_la_branche'
 ```
