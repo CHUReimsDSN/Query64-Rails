@@ -72,7 +72,12 @@ module Query64
       filters = aggrid_params[:filterModel] || {}
       filters.each do |column_filter_name, filter_params|
         column_metadata = find_column_metadata(column_filter_name)
-        next if column_metadata.nil?
+        if column_metadata.nil?
+          column_metadata = find_column_metadata_outside_select(column_filter_name)
+          if column_metadata.nil?
+            next
+          end
+        end
         
         if filter_params[:conditions].nil?
           sanitized_filter_params = {}
@@ -388,6 +393,18 @@ module Query64
       self.columns_to_select_meta_data.find do |column_to_select|
         deserialized_column_filter[:raw_field_name] == column_to_select[:raw_field_name] &&
           deserialized_column_filter[:association_name] == column_to_select[:association_name]
+      end
+    end
+
+    def find_column_metadata_outside_select(column_serialized_name)
+      deserialized_column_filter = self.resource_class.query64_deserialize_relation_key_column(column_serialized_name)
+      begin
+        resource_class = deserialized_column_filter[:raw_field_name].constantize
+      rescue Exception
+        raise Query64Exception.new("This resource does not exist : #{deserialized_column_filter[:raw_field_name]}", 400)
+      end
+      resource_class.query64_get_all_columns_metadata.find do |column_to_select|
+        deserialized_column_filter[:raw_field_name] == column_to_select[raw_field_name]
       end
     end
 
