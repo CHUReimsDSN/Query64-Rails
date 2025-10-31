@@ -507,7 +507,7 @@ module Query64
         #{self.sql_string_hash[:additional_clause]}
       """
       items = self.provider.resource_class.connection.execute(items_sql).to_a
-      { items: items, length: length }
+      { items: items, length: length, sql: items_sql }
     end
 
     private
