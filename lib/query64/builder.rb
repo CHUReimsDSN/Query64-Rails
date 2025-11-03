@@ -475,6 +475,7 @@ module Query64
         items = items.map do |row|
           value = row[column_name].to_s
           {
+            id: "",
             __id: "#{resource_name}/#{group_segment_string}/#{value}",
             __group_key: value,
             __label: value,
