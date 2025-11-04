@@ -178,7 +178,7 @@ module Query64
         columns_to_select = [meta_data[:raw_field_name]]
 
         self.joins_data[meta_data[:association_name]] = {
-          alias_label: "#{meta_data[:association_name]}__target",
+          alias_label: paths_to_join.last[:foreign_table_alias], # HELP
           paths_to_join: paths_to_join,
           paths_to_join_count: Marshal.load(Marshal.dump(paths_to_join)),
           paths_to_join_group: Marshal.load(Marshal.dump(paths_to_join)),

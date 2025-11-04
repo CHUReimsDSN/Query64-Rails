@@ -228,7 +228,7 @@ module Query64
       end
       if !association_class.nil?
         beauty_association_class = association_class
-        label = "#{beauty_association_class.to_s.capitalize} : #{label}"
+        label = "#{beauty_association_class.to_s} : #{label}"
       end
       label
     end
