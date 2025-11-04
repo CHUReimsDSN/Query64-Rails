@@ -159,12 +159,12 @@ module Query64
 
         next if meta_data[:association_name].nil?
         
-        join_data_already_exists = self.joins_data.find do |join_data_key, _join_data_value|
+        join_data_index = self.joins_data.keys.find_index do |join_data_key|
           join_data_key == meta_data[:association_name]
         end
 
-        if join_data_already_exists
-          join_data_already_exists[:columns_to_select] << meta_data[:raw_field_name]
+        if join_data_index != -1
+          self.joins_data[join_data_index][:columns_to_select] << meta_data[:raw_field_name]
           next
         end
         
