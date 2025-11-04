@@ -159,12 +159,12 @@ module Query64
 
         next if meta_data[:association_name].nil?
         
-        join_data_already_exists = self.joins_data.find do |join_data_key|
+        metadata_join_key = self.joins_data.keys.find do |join_data_key|
           join_data_key == meta_data[:association_name]
         end
 
-        if join_data_already_exists
-          join_data_already_exists[:columns_to_select] << meta_data[:raw_field_name]
+        if metadata_join_key
+          self.joins_data[metadata_join_key][:columns_to_select] << meta_data[:raw_field_name]
           next
         end
         
@@ -178,7 +178,7 @@ module Query64
         columns_to_select = [meta_data[:raw_field_name]]
 
         self.joins_data[meta_data[:association_name]] = {
-          alias_label: "#{meta_data[:association_name]}__target",
+          alias_label: paths_to_join.last[:foreign_table_alias],
           paths_to_join: paths_to_join,
           paths_to_join_count: Marshal.load(Marshal.dump(paths_to_join)),
           paths_to_join_group: Marshal.load(Marshal.dump(paths_to_join)),
