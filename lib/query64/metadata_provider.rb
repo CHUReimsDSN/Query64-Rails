@@ -96,14 +96,8 @@ module Query64
 
         policy[:columns_to_exclude].each do |column|
           index_to_delete = allowed_columns.index do |allowed_column|
-            if policy[:association_class_name] != nil
-              if policy[:association_class_name].primary_key == column
-                next
-              end
-            else
-              if column == self.primary_key
-                next
-              end
+            if column == self.primary_key
+              next
             end
             allowed_column[:association_name] == policy[:association_name] && allowed_column[:raw_field_name] == column
           end
@@ -111,6 +105,17 @@ module Query64
             next
           end
           allowed_columns.delete_at(index_to_delete)
+        end
+
+        if !policy[:association_name].nil?
+          foreign_key_column = self.reflect_on_association(policy[:association_name])&.foreign_key
+          if (foreign_key_column)
+            allowed_columns << {
+                index: index_base + 999,
+                raw_field_name: column_name,
+                association_name: nil
+            }
+          end
         end
       end
 
