@@ -164,7 +164,7 @@ module Query64
         end
 
         if join_data_index != -1
-          self.joins_data[join_data_index][:columns_to_select] << meta_data[:raw_field_name]
+          self.joins_data[meta_data[:association_name]][:columns_to_select] << meta_data[:raw_field_name]
           next
         end
         
