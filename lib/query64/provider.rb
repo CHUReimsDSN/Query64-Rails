@@ -159,7 +159,7 @@ module Query64
 
         next if meta_data[:association_name].nil?
         
-        join_data_already_exists = self.joins_data.keys.find do |join_data_key|
+        join_data_already_exists = self.joins_data.find do |join_data_key, _join_data_value|
           join_data_key == meta_data[:association_name]
         end
 
