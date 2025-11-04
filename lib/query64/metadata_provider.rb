@@ -112,7 +112,7 @@ module Query64
           if (foreign_key_column)
             allowed_columns << {
                 index: index_base + 999,
-                raw_field_name: column_name,
+                raw_field_name: foreign_key_column,
                 association_name: nil
             }
           end
