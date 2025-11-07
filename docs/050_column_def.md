@@ -33,12 +33,3 @@ def self.query64_column_builder
   ]
 end
 ```
-
-## Options
-
-Les options suivantes sont disponibles : 
-
-- `columns_to_include`: __string[] = ['*']__ -> Définit le nom des différentes colonnes à inclure (tout inclure avec : `['*']`) 
-- `columns_to_exclude`: __string[] = []__ -> Définit le nom des différentes colonnes à exclure 
-- `statement`: __() -> bool = () -> false__ -> Callback qui définit si les colonnes doivent être incluses ou non
-- `association_name`: __Symbol = nil__ -> Définit la relation
