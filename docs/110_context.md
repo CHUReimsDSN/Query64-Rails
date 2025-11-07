@@ -4,7 +4,7 @@ title: Contexte
 
 # Contexte
 
-Les méthodes appelées par Query64 peuvent prendre un paramètre de contexte provenant du client.  
+Certaines méthodes appelées par Query64 peuvent prendre un paramètre de contexte provenant du client.  
 Cet argument permet de définir une logique supplémentaire quant au données générées.
 Dans l'exemple suivant, le contexte est défini arbitrairement côté client et injecté dans la méthode.
 ```ruby 
@@ -34,7 +34,5 @@ end
 Ne pas se baser sur le contexte pour définir des politiques de sécurité, 
 car celui-ci provient entièrement du client.
 
-Méthode acceptant un contexte : 
-- `query64_column_builder`
-- `query64_column_dictionary`
-- `query64_additional_row_filters`
+{: .important }
+Consulter les [Définitions]({% link 800_definitions.md %}) pour savoir quelles méthodes reçoivent le contexte
