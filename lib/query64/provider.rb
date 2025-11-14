@@ -19,6 +19,7 @@ module Query64
       self.resource_class = resource_class_name.constantize
       self.alias_start_table = "start_table_final"
       self.alias_start_table_sub_request = "start_table_sub_request"
+      self.columns_to_select_meta_data = []
       self.filters = []
       self.groups = []
       self.sorts = []
@@ -39,7 +40,6 @@ module Query64
       fill_joins_data_for_count_and_group
       fill_group_mode_data(aggrid_params)
       fill_sub_request_mode
-      ensure_resource_id_present
     end
 
     private
@@ -65,6 +65,75 @@ module Query64
       self.columns_to_select_meta_data = self.resource_class.query64_get_builder_metadata(self.context).filter do |meta_data|
         columns_to_select_params.find {|column_to_select| column_to_select == meta_data[:field_name] } != nil
       end
+
+      # Ensure primary key of resource is included
+      primary_key_column_name = self.resource_class.primary_key
+      resource_column_primary_key = self.columns_to_select_meta_data.find do |column_meta_data|
+        column_meta_data[:raw_field_name] == primary_key_column_name &&
+        column_meta_data[:association_name] == nil
+      end
+      if resource_column_primary_key.nil?
+        resource_column_primary_key = self.resource_class.query64_get_all_metadata(self.context).find do |resource_column_meta_data|
+          resource_column_meta_data[:raw_field_name] == primary_key_column_name &&
+          resource_column_meta_data[:association_name] == nil
+        end
+        if resource_column_primary_key.nil?
+          raise Query64Exception.new("Column #{self.resource_class.table_name}.#{primary_key_column_name} cannot be found", 404)
+        end
+        self.columns_to_select_meta_data.unshift(resource_column_primary_key)
+      end
+
+      # Ensure joins keys are included
+      association_done_names = {}
+      self.columns_to_select_meta_data.each do |column_metadata|
+        association_name = column_metadata[:association_name]
+        if !association_name.nil? && association_done_names[association_name] != true
+          find_entries = []
+          reflection = column_metadata[:association_class_name]
+          case column_metadata[:association_type]
+            when :belongs_to
+              find_entries << {
+                raw_field_name_to_find: reflection.foreign_key,
+                association_name_to_find: nil
+              }
+
+            when :has_one, :has_many
+              find_entries << {
+                raw_field_name_to_find: reflection.association_primary_key,
+                association_name_to_find: association_name
+              }
+
+            when :has_and_belongs_to_many
+              find_entries << {
+                raw_field_name_to_find: reflection.foreign_key,
+                association_name_to_find: nil
+              }
+              find_entries << {
+                raw_field_name_to_find: reflection.association_primary_key,
+                association_name_to_find: association_name
+              }
+          end
+
+          find_entries.each do |find_entry|
+            foreign_column_find = self.columns_to_select_meta_data.find do |column_metadata_find|
+              column_metadata_find[:association_name] == find_entry[:association_name_to_find] && 
+              column_metadata_find[:raw_field_name] == find_entry[:raw_field_name_to_find]
+            end
+            
+            if foreign_column_find.nil?
+              missing_foreing_key = self.resource_class.query64_get_all_metadata(self.context).find do |missing_find|
+                missing_find[:association_name] == find_entry[:association_name_to_find] && 
+                missing_find[:raw_field_name] == find_entry[:raw_field_name_to_find]
+              end
+              if !missing_foreing_key.nil?
+                self.columns_to_select_meta_data << missing_foreing_key
+              end
+            end
+          end
+          association_done_names[association_name] = true
+        end
+      end
+      
       if self.columns_to_select_meta_data.empty?
         raise Query64Exception.new("No column available", 422)
       end
@@ -188,8 +257,8 @@ module Query64
         self.joins_data[meta_data[:association_name]] = {
           alias_label: paths_to_join.last[:foreign_table_alias],
           paths_to_join: paths_to_join,
-          paths_to_join_count: Marshal.load(Marshal.dump(paths_to_join)),
-          paths_to_join_group: Marshal.load(Marshal.dump(paths_to_join)),
+          paths_to_join_count: Marshal.load(Marshal.dump(paths_to_join)), # deep clone ? should try .deep_dup
+          paths_to_join_group: Marshal.load(Marshal.dump(paths_to_join)), # deep clone ? should try .deep_dup
           columns_to_select: columns_to_select,
           enabled_for_count: false,
           enabled_for_group: false,
@@ -233,8 +302,8 @@ module Query64
           else
             foreign_table_alias = "#{foreign_table_name}#{suffix_target_is}"
           end
-          foreign_key = reflection.association_primary_key
-          primary_key = reflection.association_foreign_key
+          foreign_key = reflection.association_primary_key # TODO maybe join_primary_key ?
+          primary_key = reflection.association_foreign_key # TODO maybe join_foreign_key ?
           paths_to_join << {
             primary_table_name: table_name,
             primary_table_alias: table_alias,
@@ -256,8 +325,8 @@ module Query64
             else
               foreign_table_alias = "#{foreign_table_name}#{suffix_target_is}"
             end
-            primary_key = reflection.association_primary_key
-            foreign_key = reflection.foreign_key
+            primary_key = reflection.association_primary_key  # TODO maybe join_primary_key ?
+            foreign_key = reflection.foreign_key  # TODO maybe join_foreign_key ?
             paths_to_join << {
               primary_table_name: table_name,
               primary_table_alias: table_alias,
@@ -274,9 +343,9 @@ module Query64
 
           foreign_table_name = reflection.klass.table_name
           foreign_table_alias = "#{foreign_table_name}#{suffix_target}"
-          foreign_key_source = reflection.foreign_key
-          foreign_key_target = reflection.association_foreign_key
-          primary_key = reflection.association_primary_key
+          foreign_key_source = reflection.foreign_key  # TODO maybe join_foreign_key ?
+          foreign_key_target = reflection.association_foreign_key  # TODO maybe join_foreign_key ?
+          primary_key = reflection.association_primary_key  # TODO maybe join_primary_key ?
           
           paths_to_join << {
             primary_table_name: table_name,
@@ -377,25 +446,6 @@ module Query64
       end
     end
 
-    def ensure_resource_id_present
-      primary_key_column_name = self.resource_class.primary_key
-      resource_column_primary_key = self.columns_to_select_meta_data.find do |column_meta_data|
-        column_meta_data[:raw_field_name] == primary_key_column_name &&
-        column_meta_data[:association_name] == nil
-      end
-
-      if resource_column_primary_key.nil?
-        resource_column_primary_key = self.resource_class.query64_get_all_metadata.find do |resource_column_meta_data|
-          resource_column_meta_data[:raw_field_name] == primary_key_column_name &&
-          resource_column_meta_data[:association_name] == nil
-        end
-        if resource_column_primary_key.nil?
-          raise Query64Exception.new("Column #{self.resource_class.table_name}.#{primary_key_column_name} cannot be found", 404)
-        end
-        self.columns_to_select_meta_data.unshift(resource_column_primary_key)
-      end
-    end
-
     def find_column_metadata_in_select(column_serialized_name)
       deserialized_column_filter = self.resource_class.query64_deserialize_relation_key_column(column_serialized_name)
       self.columns_to_select_meta_data.find do |column_to_select|
@@ -406,7 +456,7 @@ module Query64
 
     def find_column_metadata(resource_class, column_serialized_name)
       deserialized_column_filter = self.resource_class.query64_deserialize_relation_key_column(column_serialized_name)
-      resource_class.query64_get_all_metadata.find do |column_to_select|
+      resource_class.query64_get_all_metadata(self.context).find do |column_to_select|
         deserialized_column_filter[:raw_field_name] == column_to_select[:raw_field_name] &&
           deserialized_column_filter[:association_name] == column_to_select[:association_name]
       end
