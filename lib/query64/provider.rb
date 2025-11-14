@@ -89,7 +89,10 @@ module Query64
         association_name = column_metadata[:association_name]
         if !association_name.nil? && association_done_names[association_name] != true
           find_entries = []
-          reflection = column_metadata[:association_class_name]
+          reflection = self.resource_class.reflect_on_association(association_name)
+          if reflection.nil?
+            next
+          end
           case column_metadata[:association_type]
             when :belongs_to
               find_entries << {
