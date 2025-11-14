@@ -1,0 +1,28 @@
+module Query64
+  class Provider
+
+    attr_accessor resource_class: 
+    attr_accessor alias_start_table: 
+    attr_accessor alias_start_table_sub_request: 
+    attr_accessor columns_to_select_meta_data: 
+    attr_accessor limit: 
+    attr_accessor offset: 
+    attr_accessor filters: 
+    attr_accessor groups: 
+    attr_accessor sorts: Array[]
+    attr_accessor joins_data: 
+    attr_accessor group_mode_data: 
+    attr_accessor sub_request_mode: bool
+    attr_accessor filters_must_apply: Hash[Symbol, bool]
+    attr_accessor context: context
+
+
+
+
+
+    # Misc
+    type context = Hash[String, untyped]
+
+  end
+
+end

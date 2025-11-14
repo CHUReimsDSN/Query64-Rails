@@ -12,6 +12,7 @@ module Query64
                   :joins_data,
                   :group_mode_data,
                   :sub_request_mode,
+                  :filters_must_apply,
                   :context
 
     def initialize(resource_class_name, aggrid_params, columns_to_select_params, context)
@@ -24,6 +25,7 @@ module Query64
       self.group_mode_data = nil
       self.joins_data = {}
       self.sub_request_mode = false
+      self.filters_must_apply = {}
       self.context = context.nil? ? nil : context.to_h
       sanitize_params(aggrid_params, columns_to_select_params)
       add_additional_row_filters(aggrid_params)
@@ -60,7 +62,7 @@ module Query64
     end
 
     def sanitize_columns(columns_to_select_params)
-      self.columns_to_select_meta_data = self.resource_class.query64_get_data_table_meta_data(self.context).filter do |meta_data|
+      self.columns_to_select_meta_data = self.resource_class.query64_get_builder_metadata(self.context).filter do |meta_data|
         columns_to_select_params.find {|column_to_select| column_to_select == meta_data[:field_name] } != nil
       end
       if self.columns_to_select_meta_data.empty?
@@ -71,9 +73,14 @@ module Query64
     def sanitize_conditions(aggrid_params)
       filters = aggrid_params[:filterModel] || {}
       filters.each do |column_filter_name, filter_params|
-        column_metadata = find_column_metadata(column_filter_name)
-        if column_metadata.nil?
-          column_metadata = find_column_metadata_outside_select(column_filter_name)
+        
+        if self.filters_must_apply[:column_filter_name] == true
+          column_metadata = find_column_metadata_in_select(column_filter_name)
+          if column_metadata.nil?
+            next
+          end
+        else
+          column_metadata = find_column_metadata(self.resource_class, column_filter_name)
           if column_metadata.nil?
             next
           end
@@ -94,6 +101,7 @@ module Query64
           condition[:filters] = (filter_params[:filters] || []).map { |filter| ActiveRecord::Base.connection.quote_string(filter).to_s }
           condition
         end
+        
         sanitized_filter_params[:column_meta_data] = column_metadata
         sanitized_filter_params[:column_filter_name] = column_filter_name
         self.filters << sanitized_filter_params
@@ -103,7 +111,7 @@ module Query64
     def sanitize_row_group_cols(aggrid_params)
       row_group_cols = aggrid_params[:rowGroupCols] || []
       row_group_cols.each do |row_group_col|
-        column_metadata = find_column_metadata(row_group_col[:id])
+        column_metadata = find_column_metadata_in_select(row_group_col[:id])
         next if column_metadata.nil?
         row_group_col[:column_meta_data] = column_metadata
         row_group_col[:id] = ActiveRecord::Base.connection.quote_string(row_group_col[:id]&.to_s)
@@ -117,7 +125,7 @@ module Query64
       end
       groups_keys = aggrid_params[:groupKeys] || []
       groups_keys.each_with_index do |group_key, index_group_key|
-        column_metadata = find_column_metadata(self.groups[index_group_key][:id])
+        column_metadata = find_column_metadata_in_select(self.groups[index_group_key][:id])
         next if column_metadata.nil?
         self.filters << {
           conditions: [
@@ -137,7 +145,7 @@ module Query64
     def sanitize_sorts(aggrid_params)
       sorts = aggrid_params[:sortModel] || []
       sorts.each do |sort|
-        column_meta_data = find_column_metadata(sort[:colId])
+        column_meta_data = find_column_metadata_in_select(sort[:colId])
         next if column_meta_data.nil?
         sort[:column_meta_data] = column_meta_data
         if sort[:sort] == 'asc'
@@ -377,7 +385,7 @@ module Query64
       end
 
       if resource_column_primary_key.nil?
-        resource_column_primary_key = self.resource_class.query64_get_data_table_meta_data.find do |resource_column_meta_data|
+        resource_column_primary_key = self.resource_class.query64_get_all_metadata.find do |resource_column_meta_data|
           resource_column_meta_data[:raw_field_name] == primary_key_column_name &&
           resource_column_meta_data[:association_name] == nil
         end
@@ -388,7 +396,7 @@ module Query64
       end
     end
 
-    def find_column_metadata(column_serialized_name)
+    def find_column_metadata_in_select(column_serialized_name)
       deserialized_column_filter = self.resource_class.query64_deserialize_relation_key_column(column_serialized_name)
       self.columns_to_select_meta_data.find do |column_to_select|
         deserialized_column_filter[:raw_field_name] == column_to_select[:raw_field_name] &&
@@ -396,19 +404,11 @@ module Query64
       end
     end
 
-    def find_column_metadata_outside_select(column_serialized_name)
+    def find_column_metadata(resource_class, column_serialized_name)
       deserialized_column_filter = self.resource_class.query64_deserialize_relation_key_column(column_serialized_name)
-      begin
-        if (deserialized_column_filter[:association_name])
-          resource_class = deserialized_column_filter[:association_name].constantize
-        else
-          resource_class = self.resource_class
-        end
-      rescue Exception
-        raise Query64Exception.new("This resource does not exist : #{deserialized_column_filter[:association_name]}", 400)
-      end
-      resource_class.query64_get_all_columns_metadata(self.context).find do |column_to_select|
-        deserialized_column_filter[:raw_field_name] == column_to_select[:raw_field_name]
+      resource_class.query64_get_all_metadata.find do |column_to_select|
+        deserialized_column_filter[:raw_field_name] == column_to_select[:raw_field_name] &&
+          deserialized_column_filter[:association_name] == column_to_select[:association_name]
       end
     end
 
@@ -417,14 +417,9 @@ module Query64
         aggrid_params[:filterModel] = {}
       end
 
-      entries_filter = []
-      if self.resource_class.respond_to?(:query64_additional_row_filters)
-        method_additional_row_filter = self.resource_class.method(:query64_additional_row_filters)
-        if method_additional_row_filter.parameters.any?
-          entries_filter = method_additional_row_filter.call(self.context)
-        else
-          entries_filter = method_additional_row_filter.call
-        end
+      entries_filter = Query64.try_model_method_with_args(self.resource_class, :query64_additional_row_filters, self.context)
+      if entries_filter.class != Array
+        entries_filter = []
       end
       entries_filter.each do |entry|
         result_statement = entry[:statement].call
@@ -441,13 +436,14 @@ module Query64
           end
           column_name = self.resource_class.query64_serialize_relation_key_column(association, entry[:filter][:column])
         end
+        self.filters_must_apply[:column_name] = true
         aggrid_params[:filterModel][column_name] = {
           filter: entry[:filter][:filter],
           filterTo: entry[:filter][:filterTo],
           dateFrom: entry[:filter][:dateFrom],
           dateTo: entry[:filter][:dateTo],
           filters: entry[:filter][:filters],
-          type: entry[:filter][:type]
+          type: entry[:filter][:type],
         }
       end
     end
