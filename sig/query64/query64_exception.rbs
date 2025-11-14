@@ -1,0 +1,11 @@
+module Query64
+  class Query64Exception < StandardError
+
+    attr_accessor http_status: Integer
+
+    def initialize: (String, Integer) -> Query64Exception
+
+    def self.new_with_prefix: (String, Integer) -> Query64Exception
+
+  end
+end

@@ -16,7 +16,7 @@ module Query64
       if context != nil
         context = context.to_h
       end
-      resource_class.query64_get_data_table_meta_data(context)
+      resource_class.query64_get_builder_metadata(context)
     end    
   end
 
@@ -48,16 +48,24 @@ module Query64
   def self.safe_exec
     begin
       yield
-    rescue => e
-      if e.class == Query64Exception
-        http_status = e.http_status
-      else
-        http_status = 500
-      end
+    rescue Query64Exception => e
+      http_status = e.http_status
       exception = Query64Exception.new_with_prefix("An error has occured : #{e}", http_status)
       exception.set_backtrace(e.backtrace)
       raise exception
     end
+  end
+
+  def self.try_model_method_with_args(class_model, method_name, *args)
+    if class_model.respond_to?(method_name, true)
+      method_found = class_model.method(method_name)
+      if method_found.parameters.any?
+        return method_found.call(*args)
+      else
+        return method_found.call
+      end
+    end
+    nil
   end
 
   private_constant :Builder

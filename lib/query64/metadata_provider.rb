@@ -9,19 +9,14 @@ module Query64
       end
     end
 
-    def query64_get_data_table_meta_data(context = nil)
+    def query64_get_builder_metadata(context = nil)
       unless self < ActiveRecord::Base
         raise "Method must be called from ActiveRecord::Base inherited class"
       end
 
-      policies = []
-      if self.respond_to?(:query64_column_builder)
-        method_column_builder = self.method(:query64_column_builder)
-        if method_column_builder.parameters.any?
-          policies = method_column_builder.call(context)
-        else
-          policies = method_column_builder.call
-        end
+      policies = Query64.try_model_method_with_args(self, :query64_column_builder, context)
+      if policies.class != Array
+        policies = []
       end
 
       allowed_columns = []
@@ -106,55 +101,9 @@ module Query64
           end
           allowed_columns.delete_at(index_to_delete)
         end
-
-        if !policy[:association_name].nil?
-          foreign_key_column = self.reflect_on_association(policy[:association_name])&.foreign_key
-          if (foreign_key_column)
-            allowed_columns << {
-                index: index_base + 999,
-                raw_field_name: foreign_key_column,
-                association_name: nil
-            }
-          end
-        end
       end
 
-      metadata = []
-      self.columns_hash.each do |key_column, value_column|
-        label_name = query64_beautify_column_name(key_column, nil, context)
-        field_type = query64_get_column_type_by_sql_type(value_column.type)        
-        metadata << {
-          raw_field_name: key_column,
-          field_name: key_column,
-          label_name: label_name,
-          field_type: field_type,
-          association_name: nil,
-          association_type: nil,
-          association_class_name: nil,
-        }
-      end
-
-      association_names_done = []
-      self.reflect_on_all_associations.each do |association|
-        if (association_names_done.include? association.name) || (association.klass.nil?)
-          next
-        end
-        association_names_done << association.name
-        association_class = association.class_name.constantize
-        association_class.columns_hash.each do |key_column, value_column|
-          label_name = query64_beautify_column_name(key_column, association_class, context)
-          field_type = query64_get_column_type_by_sql_type(value_column.type)        
-          metadata << { 
-            raw_field_name: key_column,
-            field_name: query64_serialize_relation_key_column(association, key_column), 
-            label_name: label_name,
-            field_type: field_type,
-            association_name: association.name,
-            association_type: association.macro,
-            association_class_name: association_class,
-          }
-        end
-      end
+      metadata = self.query64_get_all_metadata(context)
 
       allowed_columns_metadata = metadata.map do |metadat|
         allowed_column_found = allowed_columns.find do |column|
@@ -172,11 +121,11 @@ module Query64
       allowed_columns_metadata
     end
 
-    def query64_get_all_columns_metadata(context = nil)
+    def query64_get_all_metadata(context = nil)
       metadata = []
       self.columns_hash.each do |key_column, value_column|
         label_name = query64_beautify_column_name(key_column, nil, context)
-        field_type = query64_get_column_type_by_sql_type(value_column.type)        
+        field_type = query64_get_column_type_by_sql_type(value_column.type)
         metadata << {
           raw_field_name: key_column,
           field_name: key_column,
@@ -186,6 +135,28 @@ module Query64
           association_type: nil,
           association_class_name: nil,
         }
+      end
+
+      association_names_done = []
+      self.reflect_on_all_associations.each do |association|
+        if (association_names_done.include? association.name) || association.klass.nil?
+          next
+        end
+        association_names_done << association.name
+        association_class = association.class_name.constantize
+        association_class.columns_hash.each do |key_column, value_column|
+          label_name = query64_beautify_column_name(key_column, association_class, context)
+          field_type = query64_get_column_type_by_sql_type(value_column.type)        
+          metadata << { 
+            raw_field_name: key_column,
+            field_name: query64_serialize_relation_key_column(association, key_column), 
+            label_name: label_name,
+            field_type: field_type,
+            association_name: association.name,
+            association_type: association.macro,
+            association_class_name: association_class,
+          }
+        end
       end
       metadata
     end
@@ -211,14 +182,9 @@ module Query64
         updated_by: 'Mis à jour par'
       }
 
-      class_column_labels = {}
-      if self.respond_to?(:query64_column_dictionary)
-        method_column_dictionary = self.method(:query64_column_dictionary)
-        if method_column_dictionary.parameters.any?
-          class_column_labels = method_column_dictionary.call(context)
-        else
-          class_column_labels = method_column_dictionary.call
-        end
+      class_column_labels = Query64.try_model_method_with_args(self, :query64_column_dictionary, context)
+      if class_column_labels.nil?
+        class_column_labels = {}
       end
     
       label_hash = generic_labels.merge(class_column_labels)
