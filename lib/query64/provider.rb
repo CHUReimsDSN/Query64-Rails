@@ -394,12 +394,12 @@ module Query64
       column_meta_data = group[:column_meta_data]
       if !column_meta_data[:association_class_name].nil?
         resource_table_name = column_meta_data[:association_class_name].table_name
-        resource_table_alias = "not found in joins_data"
         join_data = self.joins_data[column_meta_data[:association_name]]
         if !join_data.nil?
           resource_table_alias = join_data[:alias_label]
+        else
+          raise Query64Exception.new("Join data not found", 500)
         end
-        return
       else
         resource_table_name = self.resource_class.table_name
         resource_table_alias = self.alias_start_table
