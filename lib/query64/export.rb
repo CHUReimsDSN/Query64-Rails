@@ -6,7 +6,7 @@ module Query64
         when :csv
           json_keys_to_parse = Set.new
           query64_params[:columnsToDisplay].each do |column_to_display|
-            if column_to_display.include?('.')
+            if column_to_display.exclude?('.')
               next
             end
             json_keys_to_parse.add(column_to_display.split('.')[0] || '')
