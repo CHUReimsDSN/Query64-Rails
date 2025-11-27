@@ -43,7 +43,7 @@ module Query64
                 end
                 if json_assoc
                   json_key_column[json_assoc.to_sym].each do |json_col_name|
-                    row << entry[1].map do |json_array_entry|
+                    row << JSON.parse(entry[1]).map do |json_array_entry|
                       json_array_entry[json_col_name]
                     end
                   end
