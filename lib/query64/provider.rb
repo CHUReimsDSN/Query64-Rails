@@ -380,6 +380,13 @@ module Query64
           self.joins_data[association_name][:enabled_for_group] = true
         end
       end
+      self.groups.each do |group|
+        association_name = group["column_meta_data"]["association_name"]
+        if !association_name.nil? && self.joins_data[association_name]
+          self.joins_data[association_name][:enabled_for_count] = true
+          self.joins_data[association_name][:enabled_for_group] = true
+        end
+      end
     end
 
     def fill_group_mode_data(aggrid_params)
