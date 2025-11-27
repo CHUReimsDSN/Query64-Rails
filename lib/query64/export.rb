@@ -1,39 +1,27 @@
+require 'csv'
+
 module Query64
   class Export
     
     def self.get_data(data_rows, query64_params, format = :csv)
       case format
         when :csv
-          json_keys_to_parse = Set.new
-          query64_params[:columnsToDisplay].each do |column_to_display|
-            if column_to_display.exclude?('.')
-              next
-            end
-            json_keys_to_parse.add(column_to_display.split('.')[0] || '')
-          end
-          return data_rows.map do |data_row|
-            json_keys_to_parse.each do |json_key|
-              data_row[json_key] = JSON.parse(data_row[json_key])
-            end
-            data_row
-          end.join(";")
-          
-        when :grid_like
-          json_keys_to_parse = Set.new
-          query64_params[:columnsToDisplay].each do |column_to_display|
-            if column_to_display.include?('.')
-              next
-            end
-            json_keys_to_parse.add(column_to_display.split('.')[0] || '')
-          end
-          return data_rows.map do |data_row|
-            json_keys_to_parse.each do |json_key|
-              data_row[json_key] = JSON.parse(data_row[json_key])
-            end
-            data_row
+          if data_rows.count == 0
+            return ""
           end
 
-        when :json
+          csv_content = CSV.generate(headers: true, col_sep: ';') do |csv|
+            header_row = data_rows.first.keys
+            csv << header_row
+
+            data_rows.each do |data_row|
+              row = data_row.values
+              csv << row
+            end
+          end
+          return csv_content
+
+        when :raw
           return data_rows
       end
     end
