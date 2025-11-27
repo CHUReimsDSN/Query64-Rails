@@ -33,6 +33,7 @@ module Query64
       ensure_params_and_resource_are_valid(params)
       query64_params = params[:query64Params]
       query64_params[:export_mode] = true
+      query64_params[:shallReturnCount] = false
       items = Builder.get_results(query64_params)[:items]
       Export.get_data(items, query64_params, format)
     end

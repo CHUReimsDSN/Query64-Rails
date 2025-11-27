@@ -518,7 +518,7 @@ module Query64
         additional_clause: ";"
       }
       self.shall_return_count = query64_params[:shallReturnCount] || false
-      self.provider = Provider.new(query64_params[:resourceName], query64_params[:agGridServerParams], query64_params[:columnsToDisplay], query64_params[:context])
+      self.provider = Provider.new(query64_params)
     end
 
   end

@@ -13,9 +13,15 @@ module Query64
                   :group_mode_data,
                   :sub_request_mode,
                   :filters_must_apply,
+                  :export_mode,
                   :context
 
-    def initialize(resource_class_name, aggrid_params, columns_to_select_params, context)
+    def initialize(request_params)
+      resource_class_name = request_params[:resourceName]
+      aggrid_params = request_params[:agGridServerParams]
+      columns_to_select_params = request_params[:columnsToDisplay]
+      context = request_params[:context]
+
       self.resource_class = resource_class_name.constantize
       self.alias_start_table = "start_table_final"
       self.alias_start_table_sub_request = "start_table_sub_request"
@@ -27,6 +33,7 @@ module Query64
       self.joins_data = {}
       self.sub_request_mode = false
       self.filters_must_apply = {}
+      self.export_mode = request_params[:export_mode] || false
       self.context = context.nil? ? nil : context.to_h
       sanitize_params(aggrid_params, columns_to_select_params)
       add_additional_row_filters(aggrid_params)
@@ -53,7 +60,7 @@ module Query64
     end
 
     def sanitize_limit_and_offset(aggrid_params)
-      if aggrid_params[:export_mode]
+      if self.export_mode
         self.limit = "NULL"
         self.offset = 0
         return
