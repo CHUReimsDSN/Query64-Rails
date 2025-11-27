@@ -53,11 +53,20 @@ module Query64
     end
 
     def sanitize_limit_and_offset(aggrid_params)
+      if aggrid_params[:export_mode]
+        self.limit = "NULL"
+        self.offset = 0
+        return
+      end
       limit = aggrid_params[:endRow].to_i - aggrid_params[:startRow].to_i
-      limit = 1000 if limit > 1000 || limit < 0
+      if limit > 100 || limit < 0
+        limit = 100
+      end
       self.limit = limit
       offset = aggrid_params[:startRow].to_i
-      limit = 0 if offset < 0
+      if offset < 0
+        limit = 0 
+      end
       self.offset = offset
     end
 
