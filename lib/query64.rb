@@ -3,6 +3,7 @@
 require_relative "query64/builder"
 require_relative "query64/metadata_provider"
 require_relative "query64/provider"
+require_relative "query64_export"
 require_relative "query64/query64_exception"
 require_relative "query64/utils"
 require_relative "query64/version"
@@ -80,4 +81,5 @@ module Query64
 
   private_constant :Builder
   private_constant :Provider
+  private_constant :Export
 end
