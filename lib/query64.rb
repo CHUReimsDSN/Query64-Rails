@@ -27,6 +27,16 @@ module Query64
     end
   end
 
+  def self.export(params, format)
+    safe_exec do
+      ensure_params_and_resource_are_valid(params)
+      query64_params = params[:query64Params]
+      query64_params[:export_mode] = true
+      items = Builder.get_results(query64_params)[:items]
+      Export.get_data(items, query64_params, format)
+    end
+  end
+
   def self.ensure_params_and_resource_are_valid(params)
     if !params[:query64Params]
       raise Query64Exception.new("Invalid params", 400)
