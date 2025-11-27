@@ -28,9 +28,9 @@ module Query64
         self.sql_string_hash[:select_group_clause] = "SELECT"
         group_columns = []
         group_columns << "COUNT (#{self.provider.alias_start_table}.#{self.provider.resource_class.primary_key})"
-        group_columns << "#{self.provider.group_mode_data[:group_column_table_alias]}.#{self.provider.group_mode_data[:group_column_metadata][:field_name]}"
+        group_columns << "#{self.provider.group_mode_data[:group_column_table_alias]}.#{self.provider.group_mode_data[:group_column_metadata][:raw_field_name]}"
         self.sql_string_hash[:select_group_columns] = group_columns.join(', ')
-        self.sql_string_hash[:from_group] = "FROM #{self.provider.group_mode_data[:group_column_table_name]} AS #{self.provider.group_mode_data[:group_column_table_alias]}"
+        self.sql_string_hash[:from_group] ="FROM #{self.provider.resource_class.table_name} AS #{self.provider.alias_start_table}"
         return
       end
       self.sql_string_hash[:select_clause_count] = "SELECT"
