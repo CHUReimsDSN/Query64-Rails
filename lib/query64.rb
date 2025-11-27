@@ -3,6 +3,7 @@
 require_relative "query64/builder"
 require_relative "query64/metadata_provider"
 require_relative "query64/provider"
+require_relative "query64/export"
 require_relative "query64/query64_exception"
 require_relative "query64/utils"
 require_relative "query64/version"
@@ -32,6 +33,7 @@ module Query64
       ensure_params_and_resource_are_valid(params)
       query64_params = params[:query64Params]
       query64_params[:export_mode] = true
+      query64_params[:shallReturnCount] = false
       items = Builder.get_results(query64_params)[:items]
       Export.get_data(items, query64_params, format)
     end
@@ -80,4 +82,5 @@ module Query64
 
   private_constant :Builder
   private_constant :Provider
+  private_constant :Export
 end

@@ -5,7 +5,7 @@ title: Export
 # Export
 
 Une méthode utilitaire de Query64 est mise à disposition pour exporter les données.  
-Elle prend un second argument facultatif qui représente le format des données : `:json`, `:grid_like`.  
+Elle prend un second argument facultatif qui représente le format des données : `:csv`, `:raw`.  
 
 ```ruby
 class MyController < ApplicationController
