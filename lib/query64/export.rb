@@ -38,7 +38,9 @@ module Query64
             data_rows.each do |data_row|
               row = []
               data_row.each do |entry|
-                json_assoc = json_key_association.find(entry[0])
+                json_assoc = json_key_association.find do |entry_set|
+                  entry_set == entry[0]
+                end
                 if json_assoc
                   json_key_column[json_assoc.to_sym].each do |json_col_name|
                     row << entry[1][json_col_name]
