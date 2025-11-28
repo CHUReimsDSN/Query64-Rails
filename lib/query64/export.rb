@@ -42,26 +42,16 @@ module Query64
                   entry_set == entry[0]
                 end
                 if json_assoc
-                  next
-                else
-                  row << entry[1]
-                end
-              end
-              data_row.each do |entry|
-                json_assoc = json_key_association.find do |entry_set|
-                  entry_set == entry[0]
-                end
-                if json_assoc
                   json_key_column[json_assoc.to_sym].each do |json_col_name|
                     row << JSON.parse(entry[1]).map do |json_array_entry|
-                      json_array_entry[json_col_name]
-                    end
+                      json_array_entry[json_col_name] || ""
+                    end.join(",")
                   end
                 else
-                  next
+                  row << entry[1] || ""
                 end
-              end              
-
+              end
+                       
               csv << row
             end
           end
