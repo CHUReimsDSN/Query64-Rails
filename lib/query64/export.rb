@@ -4,12 +4,12 @@ module Query64
   class Export
     
     def self.get_data(data_rows, query64_params, format = :csv)
+      if data_rows.count == 0
+        return data_rows
+      end
+
       case format
         when :csv
-          if data_rows.count == 0
-            return ""
-          end
-
           json_key_column = {}
           json_key_association = Set.new
           query64_params[:columnsToDisplay].each do |column_to_display|
