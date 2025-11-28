@@ -95,7 +95,7 @@ module Query64
 
       end
       if self.provider.sub_request_mode
-        column_select_array << "#{self.provider.alias_start_table}.*"
+        column_select_array.unshift "#{self.provider.alias_start_table}.*"
         if column_select_on_sub_request_array.empty?
           self.sql_string_hash[:sub_request_select_clause] = "SELECT"
         else
