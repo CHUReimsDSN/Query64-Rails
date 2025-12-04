@@ -243,7 +243,7 @@ module Query64
                       fragments << "#{table_alias}.#{column_name} = #{condition[:filter]}"
                     end
                   when :date
-                    fragments << "#{table_alias}.#{column_name} = '#{condition[:dateFrom]}'"
+                    fragments << "#{table_alias}.#{column_name}::date = '#{condition[:dateFrom]}'"
                   else
                     fragments << "#{table_alias}.#{column_name} = '#{condition[:filter]}'"
                 end
@@ -257,6 +257,8 @@ module Query64
                     else
                       fragments << "#{table_alias}.#{column_name} != #{condition[:filter]}"
                     end
+                  when :date
+                    fragments << "#{table_alias}.#{column_name}::date != '#{condition[:dateFrom]}'"
                   else
                     fragments << "#{table_alias}.#{column_name} != '#{condition[:filter]}'"
                 end
