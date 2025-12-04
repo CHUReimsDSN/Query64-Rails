@@ -242,6 +242,8 @@ module Query64
                     else
                       fragments << "#{table_alias}.#{column_name} = #{condition[:filter]}"
                     end
+                  when :date
+                    fragments << "#{table_alias}.#{column_name} = '#{condition[:dateFrom]}'"
                   else
                     fragments << "#{table_alias}.#{column_name} = '#{condition[:filter]}'"
                 end
