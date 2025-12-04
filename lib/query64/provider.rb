@@ -322,7 +322,7 @@ module Query64
             foreign_table_alias = "#{foreign_table_name}#{suffix_target_is}"
           end
           foreign_key = reflection.association_primary_key # TODO maybe join_primary_key ?
-          primary_key = reflection.association_foreign_key # TODO maybe join_foreign_key ?
+          primary_key = reflection.join_foreign_key
           paths_to_join << {
             primary_table_name: table_name,
             primary_table_alias: table_alias,
@@ -345,7 +345,7 @@ module Query64
               foreign_table_alias = "#{foreign_table_name}#{suffix_target_is}"
             end
             primary_key = reflection.association_primary_key  # TODO maybe join_primary_key ?
-            foreign_key = reflection.foreign_key  # TODO maybe join_foreign_key ?
+            foreign_key = reflection.join_foreign_key
             paths_to_join << {
               primary_table_name: table_name,
               primary_table_alias: table_alias,
@@ -363,7 +363,7 @@ module Query64
           foreign_table_name = reflection.klass.table_name
           foreign_table_alias = "#{foreign_table_name}#{suffix_target}"
           foreign_key_source = reflection.foreign_key  # TODO maybe join_foreign_key ?
-          foreign_key_target = reflection.association_foreign_key  # TODO maybe join_foreign_key ?
+          foreign_key_target = reflection.join_foreign_key
           primary_key = reflection.association_primary_key  # TODO maybe join_primary_key ?
           
           paths_to_join << {
