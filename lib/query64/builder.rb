@@ -472,11 +472,11 @@ module Query64
         resource_name = self.provider.group_mode_data[:group_column_table_name]
         column_name = self.provider.group_mode_data[:group_column_metadata][:raw_field_name]
         group_segment_string = self.provider.group_mode_data[:group_segment_string]
-        items = items.map do |row|
+        items = items.map.with_index do |row, row_index|
           value = row[column_name].to_s
           {
             id: -1,
-            __id: "#{resource_name}/#{group_segment_string}/#{value}",
+            __id: "#{resource_name}/#{group_segment_string}/#{value}/#{self.provider.offset + row_index}",
             __group_key: value,
             __label: value,
             __childCount: row["count"],
