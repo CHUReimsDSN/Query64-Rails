@@ -45,6 +45,7 @@ module Query64
             next
           end
 
+          # ??? don't think so
           if is_column_sorted
             sql_column_on = "#{join_data[:alias_label]}.#{column_meta_data[:raw_field_name]}"
             if join_data[:enabled_for_sub_request]
@@ -85,7 +86,7 @@ module Query64
 
           if is_column_sorted
             if self.provider.sub_request_mode
-              column_select_on_sub_request_array << "#{self.provider.alias_start_table_sub_request}.#{column_meta_data[:raw_field_name]}"
+              column_select_sub_request_array << "#{self.provider.alias_start_table_sub_request}.#{column_meta_data[:raw_field_name]}"
             else
               column_select_on_array << "#{self.provider.alias_start_table}.#{column_meta_data[:raw_field_name]}"
             end
@@ -96,12 +97,8 @@ module Query64
       end
       if self.provider.sub_request_mode
         column_select_array.unshift "#{self.provider.alias_start_table}.*"
-        if column_select_on_sub_request_array.empty?
-          self.sql_string_hash[:sub_request_select_clause] = "SELECT"
-        else
-          self.sql_string_hash[:sub_request_select_clause] = "SELECT DISTINCT ON"
-          self.sql_string_hash[:sub_request_select_on_columns] = "(#{column_select_on_sub_request_array.join(', ')})"
-        end
+        self.sql_string_hash[:sub_request_select_clause] = "SELECT DISTINCT ON"
+        self.sql_string_hash[:sub_request_select_on_columns] = "(#{column_select_on_sub_request_array.join(', ')})"
         self.sql_string_hash[:sub_request_select_columns] = column_select_sub_request_array.join(', ')
         self.sql_string_hash[:sub_request_from] = "FROM #{self.provider.resource_class.table_name} AS #{self.provider.alias_start_table_sub_request}"
         self.sql_string_hash[:from] = "FROM ("
