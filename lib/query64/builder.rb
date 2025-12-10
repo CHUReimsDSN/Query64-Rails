@@ -86,9 +86,8 @@ module Query64
           if is_column_sorted
             if self.provider.sub_request_mode
               column_select_on_sub_request_array << "#{self.provider.alias_start_table_sub_request}.#{column_meta_data[:raw_field_name]}"
-            else
-              column_select_on_array << "#{self.provider.alias_start_table}.#{column_meta_data[:raw_field_name]}"
             end
+            column_select_on_array << "#{self.provider.alias_start_table}.#{column_meta_data[:raw_field_name]}"
           end
 
         end
@@ -402,6 +401,7 @@ module Query64
 
     def build_sort_sql
       sort_clauses_array = []
+      sort_clauses_sub_request_array = []
       self.provider.sorts.each do |sort|
         column_meta_data = sort[:column_meta_data]
         column_name = column_meta_data[:raw_field_name]
@@ -413,26 +413,29 @@ module Query64
           table_alias = join_data[:alias_label]
         else
           if self.provider.sub_request_mode
-            table_alias = self.provider.alias_start_table_sub_request
-          else
-            table_alias = self.provider.alias_start_table
+            table_alias_sub_request = self.provider.alias_start_table_sub_request
+            sort_clauses_sub_request_array << "#{table_alias_sub_request}.#{column_name} #{sort[:sort]}"
           end
+          table_alias = self.provider.alias_start_table
         end
-
         sort_clauses_array << "#{table_alias}.#{column_name} #{sort[:sort]}"
       end
+
       sort_sql = sort_clauses_array.join(', ')
       if sort_sql.length > 0
         sort_sql = "ORDER BY #{sort_sql}"
       end
+      sort_sub_request_sql = sort_clauses_sub_request_array.join(', ')
+      if sort_sub_request_sql.length > 0
+        sort_sub_request_sql = "ORDER BY #{sort_sub_request_sql}"
+      end
       if self.provider.sub_request_mode
-        self.sql_string_hash[:sub_request_sorts] = sort_sql
+        self.sql_string_hash[:sub_request_sorts] = sort_sub_request_sql
+      end
+      if self.provider.group_mode_data.nil?
+        self.sql_string_hash[:sorts] = sort_sql
       else
-        if self.provider.group_mode_data.nil?
-          self.sql_string_hash[:sorts] = sort_sql
-        else
-          self.sql_string_hash[:sorts_group] = sort_sql
-        end
+        self.sql_string_hash[:sorts_group] = sort_sql
       end
     end
 
