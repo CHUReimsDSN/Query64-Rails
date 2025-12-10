@@ -37,11 +37,21 @@ module Query64
       self.sql_string_hash[:select_count] = "COUNT(DISTINCT #{self.provider.alias_start_table}.#{self.provider.resource_class.primary_key})"
       select_association_name_already_done = []
       self.provider.columns_to_select_meta_data.each do |column_meta_data|
+        is_column_sorted = !self.provider.sorts.find { |sort| sort[:column_meta_data][:field_name] == column_meta_data[:field_name] }.nil?
 
         if column_meta_data[:association_name] != nil
           join_data = self.provider.joins_data[column_meta_data[:association_name]]
           if join_data.nil?
             next
+          end
+
+          if is_column_sorted
+            sql_column_on = "#{join_data[:alias_label]}.#{column_meta_data[:raw_field_name]}"
+            if join_data[:enabled_for_sub_request]
+              column_select_on_sub_request_array << sql_column_on
+            else
+              column_select_on_array << sql_column_on
+            end
           end
           
           if select_association_name_already_done.include?(column_meta_data[:association_name])
@@ -73,13 +83,25 @@ module Query64
             column_select_array << "#{self.provider.alias_start_table}.#{column_meta_data[:raw_field_name]}"
           end
 
+          if is_column_sorted
+            if self.provider.sub_request_mode
+              column_select_on_sub_request_array << "#{self.provider.alias_start_table_sub_request}.#{column_meta_data[:raw_field_name]}"
+            else
+              column_select_on_array << "#{self.provider.alias_start_table}.#{column_meta_data[:raw_field_name]}"
+            end
+          end
+
         end
 
       end
       if self.provider.sub_request_mode
         column_select_array.unshift "#{self.provider.alias_start_table}.*"
-        self.sql_string_hash[:sub_request_select_clause] = "SELECT DISTINCT ON"
-        self.sql_string_hash[:sub_request_select_on_columns] = "(#{column_select_on_sub_request_array.join(', ')})"
+        if column_select_on_sub_request_array.empty?
+          self.sql_string_hash[:sub_request_select_clause] = "SELECT"
+        else
+          self.sql_string_hash[:sub_request_select_clause] = "SELECT DISTINCT ON"
+          self.sql_string_hash[:sub_request_select_on_columns] = "(#{column_select_on_sub_request_array.join(', ')})"
+        end
         self.sql_string_hash[:sub_request_select_columns] = column_select_sub_request_array.join(', ')
         self.sql_string_hash[:sub_request_from] = "FROM #{self.provider.resource_class.table_name} AS #{self.provider.alias_start_table_sub_request}"
         self.sql_string_hash[:from] = "FROM ("
@@ -87,8 +109,12 @@ module Query64
       else
         self.sql_string_hash[:from] = "FROM #{self.provider.resource_class.table_name} AS #{self.provider.alias_start_table}"
       end
-      self.sql_string_hash[:select_clause] = "SELECT DISTINCT ON"
-      self.sql_string_hash[:select_on_columns] = "(#{column_select_on_array.join(', ')})"
+      if column_select_on_array.empty?
+        self.sql_string_hash[:select_clause] = "SELECT"
+      else
+        self.sql_string_hash[:select_clause] = "SELECT DISTINCT ON"
+        self.sql_string_hash[:select_on_columns] = "(#{column_select_on_array.join(', ')})"
+      end
       self.sql_string_hash[:select_columns] = column_select_array.join(', ')
       self.sql_string_hash[:from_count] = "FROM #{self.provider.resource_class.table_name} AS #{self.provider.alias_start_table}"
     end
