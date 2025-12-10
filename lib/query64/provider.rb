@@ -179,14 +179,14 @@ module Query64
           sanitized_filter_params[:operator] = "AND"
           sanitized_filter_params[:conditions] = [filter_params]
         else
-          sanitized_filter_params = filter_params
+          sanitized_filter_params = filter_params.deep_dup
         end
         sanitized_filter_params[:conditions] = sanitized_filter_params[:conditions].map do |condition|
-          condition[:filter] = ActiveRecord::Base.connection.quote_string(filter_params[:filter].to_s)
-          condition[:filterTo] = ActiveRecord::Base.connection.quote_string(filter_params[:filterTo].to_s)
-          condition[:dateFrom] = ActiveRecord::Base.connection.quote_string(filter_params[:dateFrom].to_s)
-          condition[:dateTo] = ActiveRecord::Base.connection.quote_string(filter_params[:dateTo].to_s)
-          condition[:filters] = (filter_params[:filters] || []).map { |filter| ActiveRecord::Base.connection.quote_string(filter).to_s }
+          condition[:filter] = ActiveRecord::Base.connection.quote_string(condition[:filter].to_s)
+          condition[:filterTo] = ActiveRecord::Base.connection.quote_string(condition[:filterTo].to_s)
+          condition[:dateFrom] = ActiveRecord::Base.connection.quote_string(condition[:dateFrom].to_s)
+          condition[:dateTo] = ActiveRecord::Base.connection.quote_string(condition[:dateTo].to_s)
+          condition[:filters] = (condition[:filters] || []).map { |filter| ActiveRecord::Base.connection.quote_string(filter).to_s }
           condition
         end
         
