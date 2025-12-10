@@ -413,7 +413,7 @@ module Query64
           end
           table_alias_sub_request = join_data[:alias_label]
           sort_clauses_sub_request_array << "#{table_alias_sub_request}.#{column_name} #{sort[:sort]}"
-          if join_data[:enabled_for_sub_request]
+          if !join_data[:enabled_for_sub_request]
             sort_clauses_array << "#{table_alias_sub_request}.#{column_name} #{sort[:sort]}" # ???
           end
         else
