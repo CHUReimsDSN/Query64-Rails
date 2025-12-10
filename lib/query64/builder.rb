@@ -405,20 +405,24 @@ module Query64
       self.provider.sorts.each do |sort|
         column_meta_data = sort[:column_meta_data]
         column_name = column_meta_data[:raw_field_name]
+
         if column_meta_data[:association_name] != nil
           join_data = self.provider.joins_data[column_meta_data[:association_name]]
           if join_data.nil?
             next
           end
-          table_alias = join_data[:alias_label]
+          table_alias_sub_request = join_data[:alias_label]
+          sort_clauses_sub_request_array << "#{table_alias_sub_request}.#{column_name} #{sort[:sort]}"
+          sort_clauses_array << "#{table_alias_sub_request}.#{column_name} #{sort[:sort]}"
         else
           if self.provider.sub_request_mode
             table_alias_sub_request = self.provider.alias_start_table_sub_request
             sort_clauses_sub_request_array << "#{table_alias_sub_request}.#{column_name} #{sort[:sort]}"
           end
           table_alias = self.provider.alias_start_table
+          sort_clauses_array << "#{table_alias}.#{column_name} #{sort[:sort]}"
         end
-        sort_clauses_array << "#{table_alias}.#{column_name} #{sort[:sort]}"
+        
       end
 
       sort_sql = sort_clauses_array.join(', ')
