@@ -19,6 +19,8 @@ module Query64
     def build_select_sql
       column_select_array = []
       column_select_sub_request_array = []
+      column_select_on_array = ["#{self.provider.alias_start_table}.#{self.provider.resource_class.primary_key}"]
+      column_select_on_sub_request_array = ["#{self.provider.alias_start_table_sub_request}.#{self.provider.resource_class.primary_key}"]
       if self.provider.group_mode_data
         self.sql_string_hash[:select_clause_count] = "SELECT"
         self.sql_string_hash[:select_count] = "COUNT(DISTINCT COALESCE(#{self.provider.group_mode_data[:group_column_table_alias]}.#{self.provider.group_mode_data[:group_column_metadata][:raw_field_name]}::text, '<<NULL>>'))"  
@@ -76,7 +78,8 @@ module Query64
       end
       if self.provider.sub_request_mode
         column_select_array.unshift "#{self.provider.alias_start_table}.*"
-        self.sql_string_hash[:sub_request_select_clause] = "SELECT"
+        self.sql_string_hash[:sub_request_select_clause] = "SELECT DISTINCT ON"
+        self.sql_string_hash[:sub_request_select_on_columns] = "(#{column_select_on_sub_request_array.join(', ')})"
         self.sql_string_hash[:sub_request_select_columns] = column_select_sub_request_array.join(', ')
         self.sql_string_hash[:sub_request_from] = "FROM #{self.provider.resource_class.table_name} AS #{self.provider.alias_start_table_sub_request}"
         self.sql_string_hash[:from] = "FROM ("
@@ -84,7 +87,8 @@ module Query64
       else
         self.sql_string_hash[:from] = "FROM #{self.provider.resource_class.table_name} AS #{self.provider.alias_start_table}"
       end
-      self.sql_string_hash[:select_clause] = "SELECT"
+      self.sql_string_hash[:select_clause] = "SELECT DISTINCT ON"
+      self.sql_string_hash[:select_on_columns] = "(#{column_select_on_array.join(', ')})"
       self.sql_string_hash[:select_columns] = column_select_array.join(', ')
       self.sql_string_hash[:from_count] = "FROM #{self.provider.resource_class.table_name} AS #{self.provider.alias_start_table}"
     end
@@ -465,9 +469,11 @@ module Query64
       end
       items_sql = """
         #{self.sql_string_hash[:select_clause]}
+        #{self.sql_string_hash[:select_on_columns]}
         #{self.sql_string_hash[:select_columns]}
         #{self.sql_string_hash[:from]}
         #{self.sql_string_hash[:sub_request_select_clause]}
+        #{self.sql_string_hash[:sub_request_select_on_columns]}
         #{self.sql_string_hash[:sub_request_select_columns]}
         #{self.sql_string_hash[:sub_request_from]}
         #{self.sql_string_hash[:sub_request_joins]}
