@@ -86,9 +86,8 @@ module Query64
           if is_column_sorted
             if self.provider.sub_request_mode
               column_select_on_sub_request_array << "#{self.provider.alias_start_table_sub_request}.#{column_meta_data[:raw_field_name]}"
-            else
-              column_select_on_array << "#{self.provider.alias_start_table}.#{column_meta_data[:raw_field_name]}"
             end
+            column_select_on_array << "#{self.provider.alias_start_table}.#{column_meta_data[:raw_field_name]}"
           end
 
         end
