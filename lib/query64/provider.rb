@@ -276,8 +276,8 @@ module Query64
         self.joins_data[meta_data[:association_name]] = {
           alias_label: paths_to_join.last[:foreign_table_alias],
           paths_to_join: paths_to_join,
-          paths_to_join_count: Marshal.load(Marshal.dump(paths_to_join)), # deep clone ? should try .deep_dup
-          paths_to_join_group: Marshal.load(Marshal.dump(paths_to_join)), # deep clone ? should try .deep_dup
+          paths_to_join_count: Marshal.load(Marshal.dump(paths_to_join)), # TODO deep clone ? should try .deep_dup
+          paths_to_join_group: Marshal.load(Marshal.dump(paths_to_join)), # TODO deep clone ? should try .deep_dup
           columns_to_select: columns_to_select,
           enabled_for_count: false,
           enabled_for_group: false,
