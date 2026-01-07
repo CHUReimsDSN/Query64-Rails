@@ -204,6 +204,8 @@ module Query64
       case sql_type
         when :integer
           field_type = 'number'
+        when :decimal
+          field_type = 'number'
         when :datetime
           field_type = 'date'
         when :boolean
