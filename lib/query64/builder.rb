@@ -179,14 +179,14 @@ module Query64
           case column_meta_data[:field_type]
             when :boolean
               filter_params[:conditions].each do |condition|
-                if condition[:values].nil? || conditions[:values].class != Array || (conditions[:values].include?("true") && conditions[:values].include?("false"))
+                if condition[:values].nil? || condition[:values].class != Array || (condition[:values].include?("true") && condition[:values].include?("false"))
                   condition[:type] = 'notEmpty'
                 end
-                if conditions[:values].first == 'true' || conditions[:values].first == 'false'
+                if condition[:values].first == 'true' || condition[:values].first == 'false'
                   condition[:type] = 'equals'
                   condition[:filter] = bool_value
                 end
-                if conditions[:values].first == 'null'
+                if condition[:values].first == 'null'
                   condition[:type] = 'empty'
                 end
               end
