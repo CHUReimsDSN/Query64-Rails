@@ -185,7 +185,7 @@ module Query64
                 
                 if condition[:values].first == 'true' || condition[:values].first == 'false'
                   condition[:type] = 'in'
-                  condition[:filters] = conditions[:values]
+                  condition[:filters] = condition[:values]
                 end
               end
 
