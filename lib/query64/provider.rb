@@ -187,6 +187,7 @@ module Query64
           condition[:dateFrom] = ActiveRecord::Base.connection.quote_string(condition[:dateFrom].to_s)
           condition[:dateTo] = ActiveRecord::Base.connection.quote_string(condition[:dateTo].to_s)
           condition[:filters] = (condition[:filters] || []).map { |filter| ActiveRecord::Base.connection.quote_string(filter).to_s }
+          condition[:values] = (condition[:values] || []).map { |filter| ActiveRecord::Base.connection.quote_string(filter).to_s }
           condition
         end
         
@@ -520,6 +521,7 @@ module Query64
           dateFrom: entry[:filter][:dateFrom],
           dateTo: entry[:filter][:dateTo],
           filters: entry[:filter][:filters],
+          values: entry[:filter][:values],
           type: entry[:filter][:type],
         }
       end
