@@ -207,7 +207,7 @@ module Query64
                   when :number
                     fragments << "#{table_alias}.#{column_name} IN (#{condition[:filters].join(', ')})"
                   else
-                    fragments << "#{table_alias}.#{column_name} IN (#{condition[:filters].map{|filter| "'#{filter}'"}.join(', ')}"
+                    fragments << "#{table_alias}.#{column_name} IN (#{condition[:filters].map{|filter| "'#{filter}'"}.join(', ')})"
                 end
 
             when 'set'
@@ -218,7 +218,7 @@ module Query64
                   when :number
                     fragments << "#{table_alias}.#{column_name} IN (#{condition[:values].join(', ')})"
                   else
-                    fragments << "#{table_alias}.#{column_name} IN (#{condition[:values].map{|filter| "'#{filter}'"}.join(', ')}"
+                    fragments << "#{table_alias}.#{column_name} IN (#{condition[:values].map{|filter| "'#{filter}'"}.join(', ')})"
                 end
 
             when 'contains'
