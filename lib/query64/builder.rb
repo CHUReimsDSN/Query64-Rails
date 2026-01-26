@@ -204,12 +204,12 @@ module Query64
                   next
                 end
                 sub_fragment_null = ""
-                if conditions[:filters].include? "null"
+                if condition[:filters].include? "null"
                   sub_fragment_null = "#{table_alias}.#{column_name} IS NULL"
-                  conditions[:filters] = conditions[:filters].filter do |value_select|
+                  condition[:filters] = condition[:filters].filter do |value_select|
                     value_select != "null"
                   end
-                  if conditions[:filters].length > 1
+                  if condition[:filters].length > 1
                     sub_fragment_null = sub_fragment_null.concat " OR "
                   else
                     fragments << sub_fragment_null
@@ -227,12 +227,12 @@ module Query64
                   next
                 end
                 sub_fragment_null = ""
-                if conditions[:values].include? "null"
+                if condition[:values].include? "null"
                   sub_fragment_null = "#{table_alias}.#{column_name} IS NULL"
-                  conditions[:values] = conditions[:values].filter do |value_select|
+                  condition[:values] = condition[:values].filter do |value_select|
                     value_select != "null"
                   end
-                  if conditions[:values].length > 1
+                  if condition[:values].length > 1
                     sub_fragment_null = sub_fragment_null.concat " OR "
                   else
                     fragments << sub_fragment_null
