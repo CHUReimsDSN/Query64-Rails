@@ -6,7 +6,7 @@ import { version } from './generated/version'
 export default defineConfig({
   title: "Query64 - Rails",
   description: "Query64 for Rails",
-  base: '/Submit64-Rails/',
+  base: '/Query64-Rails/',
   themeConfig: {
     nav: [
       { text: 'Documentation', link: '/documentation/000_index' },
