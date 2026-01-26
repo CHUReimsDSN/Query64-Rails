@@ -182,6 +182,9 @@ module Query64
           sanitized_filter_params = filter_params.deep_dup
         end
         sanitized_filter_params[:conditions] = sanitized_filter_params[:conditions].map do |condition|
+          if condition[:filterType] == 'set'
+            condition[:filter] = 'set'
+          end
           condition[:filter] = ActiveRecord::Base.connection.quote_string(condition[:filter].to_s)
           condition[:filterTo] = ActiveRecord::Base.connection.quote_string(condition[:filterTo].to_s)
           condition[:dateFrom] = ActiveRecord::Base.connection.quote_string(condition[:dateFrom].to_s)
