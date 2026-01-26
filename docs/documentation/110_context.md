@@ -30,9 +30,12 @@ def self.query64_column_builder(context)
 end
 ```
 
-{: .warning }
+::: danger Attention
 Ne pas se baser sur le contexte pour définir des politiques de sécurité, 
 car celui-ci provient entièrement du client.
+:::
 
-{: .important }
-Consulter les [Définitions]({% link 800_definitions.md %}) pour savoir quelles méthodes reçoivent le contexte
+::: warning Important 
+Consulter la [Définition API](/api-definition/models.md) pour connaitre quelles méthodes reçoivent le contexte.
+:::
+

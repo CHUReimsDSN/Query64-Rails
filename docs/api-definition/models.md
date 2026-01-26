@@ -1,8 +1,8 @@
 ---
-title: Définition
+title: Définition API
 ---
 
-# Définition
+# Définition API
 
 ## query64_column_builder
 
@@ -10,27 +10,20 @@ title: Définition
 def query64_column_builder: (Context?) -> ColumnBuilder[]
 ```
 
-```typescript
+```ruby
 type Context = Hash[String, untyped]
 type ColumnBuilder = {
-  /*
-  * Définit le nom des différentes colonnes à inclure (tout inclure avec : `['*']`) 
-  */
+
+  # Définit le nom des différentes colonnes à inclure (tout inclure avec : `['#']`) 
   columns_to_include: String[] = []
 
-  /*
-  * Définit le nom des différentes colonnes à exclure
-  */
+  # Définit le nom des différentes colonnes à exclure
   columns_to_exclude: String[] = []
 
-  /*
-  * Callback qui définit si les colonnes doivent être incluses ou non
-  */
+  # Callback qui définit si les colonnes doivent être incluses ou non
   statement: () -> Boolean = () -> false
 
-  /*
-  * Défini la relation
-  */
+  # Défini la relation
   association_name: Symbol = nil
 }
 ```
@@ -43,7 +36,7 @@ type ColumnBuilder = {
 def query64_column_dictionary: (Context?) -> ColumnDictionary
 ```
 
-```typescript
+```ruby
 type Context = Hash[String, untyped]
 type ColumnDictionary = Hash[Symbol, String]
 ```
@@ -56,18 +49,14 @@ type ColumnDictionary = Hash[Symbol, String]
 def query64_additional_row_filters: (Context?) -> RowFilter
 ```
 
-```typescript
+```ruby
 type Context = Hash[String, untyped]
 type RowFilter = {
 
-  /*
-  * Callback qui définit si les colonnes doivent être incluses ou non
-  */
+  # Callback qui définit si les colonnes doivent être incluses ou non
   statement: () -> Boolean = () -> false
 
-  /*
-  * Filtre défini de la même manière que dans l'AgGrid
-  */
+  # Filtre défini de la même manière que dans l'AgGrid
   filter: {
     column: String
     type: 'in' | 'contains' | 'equals' | 'notEqual' | 'notContains' | 'empty' | 'blank' | 'notEmpty' | 'greaterThan' | 'lessThan' | 'inRange'

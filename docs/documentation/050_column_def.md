@@ -7,8 +7,9 @@ title: Définitions des colonnes
 La méthode `query64_column_builder` permet de définir les colonnes pour les intéractions 
 côté client.
 
-{: .important }
-La classe doit hériter de `ActiveRecord::Base` (ou d’une de ses sous-classes) et doit être statique pour être appelée par Query64.
+::: warning Important
+La classe doit hériter de `ActiveRecord::Base` (ou d’une de ses sous-classes).
+:::
 
 ```ruby
 def self.query64_column_builder
