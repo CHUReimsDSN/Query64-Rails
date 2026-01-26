@@ -176,23 +176,6 @@ module Query64
 
           column_meta_data = filter_params[:column_meta_data]
 
-          case column_meta_data[:field_type]
-            when :boolean
-              filter_params[:conditions].each do |condition|
-                if condition[:values].nil? || condition[:values].class != Array
-                  condition[:type] = 'notEmpty'
-                end
-                
-                if condition[:values].first == 'true' || condition[:values].first == 'false'
-                  condition[:type] = 'in'
-                  condition[:filters] = condition[:values]
-                end
-              end
-
-          else
-            nil
-          end
-
           if !column_meta_data[:association_name].nil?
             join_data = self.provider.joins_data[column_meta_data[:association_name]]
             if join_data.nil?
@@ -218,6 +201,17 @@ module Query64
 
             when 'in'
                 if condition[:filters].empty?
+                  next
+                end
+                case column_meta_data[:field_type]
+                  when :number
+                    fragments << "#{table_alias}.#{column_name} IN (#{condition[:filters].join(', ')})"
+                  else
+                    fragments << "#{table_alias}.#{column_name} IN (#{condition[:filters].map{|filter| "'#{filter}'"}.join(', ')}"
+                end
+
+            when 'set'
+                if condition[:values].empty?
                   next
                 end
                 case column_meta_data[:field_type]

@@ -1,0 +1,1 @@
+SELECT COUNT(DISTINCT start_table_final.id)   FROM etablissements AS start_table_final WHERE (start_table_final.indicateur_ouverture IN ('true'));
