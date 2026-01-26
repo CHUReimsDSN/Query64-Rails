@@ -209,10 +209,11 @@ module Query64
                   condition[:filters] = condition[:filters].filter do |value_select|
                     value_select != "null"
                   end
-                  if condition[:filters].length > 1
-                    sub_fragment_null = sub_fragment_null.concat " OR "
-                  else
+                  if condition[:filters].length == 0
                     fragments << sub_fragment_null
+                    next
+                  else
+                    sub_fragment_null = sub_fragment_null.concat " OR "
                   end
                 end
                 case column_meta_data[:field_type]
@@ -232,10 +233,11 @@ module Query64
                   condition[:values] = condition[:values].filter do |value_select|
                     value_select != "null"
                   end
-                  if condition[:values].length > 1
-                    sub_fragment_null = sub_fragment_null.concat " OR "
-                  else
+                  if condition[:values].length == 0
                     fragments << sub_fragment_null
+                    next
+                  else
+                    sub_fragment_null = sub_fragment_null.concat " OR "
                   end
                 end
                 case column_meta_data[:field_type]
