@@ -515,6 +515,9 @@ module Query64
           column_name = self.resource_class.query64_serialize_relation_key_column(association, entry[:filter][:column])
         end
         self.filters_must_apply[:column_name] = true
+        if entry[:filter][:filterType] == 'set'
+          entry[:filter][:filter] = 'set'
+        end
         aggrid_params[:filterModel][column_name] = {
           filter: entry[:filter][:filter],
           filterTo: entry[:filter][:filterTo],
