@@ -203,11 +203,23 @@ module Query64
                 if condition[:filters].empty?
                   next
                 end
+                sub_fragment_null = ""
+                if conditions[:filters].include? "null"
+                  sub_fragment_null = "#{table_alias}.#{column_name} IS NULL"
+                  conditions[:filters] = conditions[:filters].filter do |value_select|
+                    value_select != "null"
+                  end
+                  if conditions[:filters].length > 1
+                    sub_fragment_null = sub_fragment_null.concat " OR "
+                  else
+                    fragments << sub_fragment_null
+                  end
+                end
                 case column_meta_data[:field_type]
                   when :number
-                    fragments << "#{table_alias}.#{column_name} IN (#{condition[:filters].join(', ')})"
+                    fragments << "#{sub_fragment_null}#{table_alias}.#{column_name} IN (#{condition[:filters].join(', ')})"
                   else
-                    fragments << "#{table_alias}.#{column_name} IN (#{condition[:filters].map{|filter| "'#{filter}'"}.join(', ')})"
+                    fragments << "#{sub_fragment_null}#{table_alias}.#{column_name} IN (#{condition[:filters].map{|filter| "'#{filter}'"}.join(', ')})"
                 end
 
             when 'set'
