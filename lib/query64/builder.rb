@@ -308,15 +308,15 @@ module Query64
           end
         end
 
+        if where_fragments.empty?
+          next
+        end
         where_sql = where_fragments.each_with_index.reduce("") do |acc, (where_fragment, index)|
           if index == 0
             acc += "(#{where_fragment})"
           else
             acc += "AND (#{where_fragment})"
           end
-        end
-        if where_sql.empty?
-          return
         end
         where_sql = "WHERE #{where_sql}"
         if index_time == 0
