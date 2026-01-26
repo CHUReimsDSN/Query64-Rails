@@ -216,9 +216,9 @@ module Query64
                 end
                 case column_meta_data[:field_type]
                   when :number
-                    fragments << "#{table_alias}.#{column_name} IN (#{condition[:filters].join(', ')})"
+                    fragments << "#{table_alias}.#{column_name} IN (#{condition[:values].join(', ')})"
                   else
-                    fragments << "#{table_alias}.#{column_name} IN (#{condition[:filters].map{|filter| "'#{filter}'"}.join(', ')}"
+                    fragments << "#{table_alias}.#{column_name} IN (#{condition[:values].map{|filter| "'#{filter}'"}.join(', ')}"
                 end
 
             when 'contains'
