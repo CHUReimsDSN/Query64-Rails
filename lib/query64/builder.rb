@@ -308,7 +308,7 @@ module Query64
           end
         end
 
-        if where_fragments.empty? || where_fragment.first.empty?
+        if where_fragments.empty? || where_fragments.first.empty?
           next
         end
         where_sql = where_fragments.each_with_index.reduce("") do |acc, (where_fragment, index)|
