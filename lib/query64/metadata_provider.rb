@@ -176,9 +176,9 @@ module Query64
     private
     def query64_beautify_column_name(column_name, association_class = nil, context = nil)
       generic_labels = {
-        created_at: 'Crée le',
+        created_at: 'Créé le',
         updated_at: 'Mis à jour le',
-        created_by: 'Crée par',
+        created_by: 'Créé par',
         updated_by: 'Mis à jour par'
       }
 

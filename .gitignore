@@ -11,3 +11,5 @@
 /.gem_rbs_collection/
 /.sass-cache/
 /_site/
+node_modules
+cache

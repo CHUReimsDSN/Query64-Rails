@@ -30,8 +30,9 @@ class MyController < ApplicationController
 end
 ```
 
-{: .important }
+::: warning Important
 Les routes doivent utiliser les méthodes POST / PUT / PATCH pour recevoir les données du client.
+:::
 
 Query64 met également à disposition deux méthodes utilitaires pour assurer la validité
 des données reçues :

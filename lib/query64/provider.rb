@@ -182,11 +182,16 @@ module Query64
           sanitized_filter_params = filter_params.deep_dup
         end
         sanitized_filter_params[:conditions] = sanitized_filter_params[:conditions].map do |condition|
+          if condition[:filterType] == 'set'
+            condition[:type] = 'set'
+          end
+          condition[:type] = ActiveRecord::Base.connection.quote_string(condition[:type].to_s)
           condition[:filter] = ActiveRecord::Base.connection.quote_string(condition[:filter].to_s)
           condition[:filterTo] = ActiveRecord::Base.connection.quote_string(condition[:filterTo].to_s)
           condition[:dateFrom] = ActiveRecord::Base.connection.quote_string(condition[:dateFrom].to_s)
           condition[:dateTo] = ActiveRecord::Base.connection.quote_string(condition[:dateTo].to_s)
           condition[:filters] = (condition[:filters] || []).map { |filter| ActiveRecord::Base.connection.quote_string(filter).to_s }
+          condition[:values] = (condition[:values] || []).map { |filter| ActiveRecord::Base.connection.quote_string(filter).to_s }
           condition
         end
         
@@ -514,12 +519,16 @@ module Query64
           column_name = self.resource_class.query64_serialize_relation_key_column(association, entry[:filter][:column])
         end
         self.filters_must_apply[:column_name] = true
+        if entry[:filter][:filterType] == 'set'
+          entry[:filter][:filter] = 'set'
+        end
         aggrid_params[:filterModel][column_name] = {
           filter: entry[:filter][:filter],
           filterTo: entry[:filter][:filterTo],
           dateFrom: entry[:filter][:dateFrom],
           dateTo: entry[:filter][:dateTo],
           filters: entry[:filter][:filters],
+          values: entry[:filter][:values],
           type: entry[:filter][:type],
         }
       end

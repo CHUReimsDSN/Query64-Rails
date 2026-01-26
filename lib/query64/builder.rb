@@ -176,26 +176,6 @@ module Query64
 
           column_meta_data = filter_params[:column_meta_data]
 
-          case column_meta_data[:field_type]
-            when :boolean
-              filter_params[:conditions].each do |condition|
-                bool_value = false
-                true_variants = ['oui', 'ou', 'o', 'true']
-                false_variants = ['non', 'no', 'n', 'false']
-                if true_variants.include?(condition[:filter].to_s.downcase)
-                  bool_value = true
-                end
-                if false_variants.include?(condition[:filter].to_s.downcase)
-                  bool_value = false
-                end
-                condition[:type] = 'equals'
-                condition[:filter] = bool_value
-              end
-
-          else
-            nil
-          end
-
           if !column_meta_data[:association_name].nil?
             join_data = self.provider.joins_data[column_meta_data[:association_name]]
             if join_data.nil?
@@ -223,12 +203,51 @@ module Query64
                 if condition[:filters].empty?
                   next
                 end
+                sub_fragment_null = ""
+                if condition[:filters].include? "null"
+                  sub_fragment_null = "#{table_alias}.#{column_name} IS NULL"
+                  condition[:filters] = condition[:filters].filter do |value_select|
+                    value_select != "null"
+                  end
+                  if condition[:filters].length == 0
+                    fragments << sub_fragment_null
+                    next
+                  else
+                    sub_fragment_null = sub_fragment_null.concat " OR "
+                  end
+                end
                 case column_meta_data[:field_type]
                   when :number
-                    fragments << "#{table_alias}.#{column_name} IN (#{condition[:filters].join(', ')})"
+                    fragments << "#{sub_fragment_null}#{table_alias}.#{column_name} IN (#{condition[:filters].join(', ')})"
                   else
-                    fragments << "#{table_alias}.#{column_name} IN (#{condition[:filters].map{|filter| "'#{filter}'"}.join(', ')}"
+                    fragments << "#{sub_fragment_null}#{table_alias}.#{column_name} IN (#{condition[:filters].map{|filter| "'#{filter}'"}.join(', ')})"
                 end
+
+            when 'set'
+                if condition[:values].empty?
+                  next
+                end
+                sub_fragment_null = ""
+                if condition[:values].include? "null"
+                  sub_fragment_null = "#{table_alias}.#{column_name} IS NULL"
+                  condition[:values] = condition[:values].filter do |value_select|
+                    value_select != "null"
+                  end
+                  if condition[:values].length == 0
+                    fragments << sub_fragment_null
+                    next
+                  else
+                    sub_fragment_null = sub_fragment_null.concat " OR "
+                  end
+                end
+                case column_meta_data[:field_type]
+                  when :number
+                    fragments << "#{sub_fragment_null}#{table_alias}.#{column_name} IN (#{condition[:values].join(', ')})"
+                  when :boolean
+                    fragments << "#{sub_fragment_null}#{table_alias}.#{column_name} IN (#{condition[:values].map{|filter| "'#{filter}'"}.join(', ')})"
+                  else
+                    fragments << "#{sub_fragment_null}#{table_alias}.#{column_name} IN (#{condition[:values].map{|filter| "'#{filter}'"}.join(', ')})"
+                  end
 
             when 'contains'
                 fragments << "#{table_alias}.#{column_name} ILIKE '%#{condition[:filter]}%'"
@@ -317,15 +336,15 @@ module Query64
           end
         end
 
+        if where_fragments.empty? || where_fragments.first.empty?
+          next
+        end
         where_sql = where_fragments.each_with_index.reduce("") do |acc, (where_fragment, index)|
           if index == 0
             acc += "(#{where_fragment})"
           else
             acc += "AND (#{where_fragment})"
           end
-        end
-        if where_sql.empty?
-          return
         end
         where_sql = "WHERE #{where_sql}"
         if index_time == 0
@@ -526,7 +545,6 @@ module Query64
 
     private
     def initialize(query64_params)
-      params = params.to_h
       self.sql_string_hash = {
         additional_clause: ";"
       }
