@@ -28,7 +28,7 @@ module Query64
     end
   end
 
-  def self.export(params, format)
+  def self.export(params, format = :csv)
     safe_exec do
       ensure_params_and_resource_are_valid(params)
       query64_params = params[:query64Params]

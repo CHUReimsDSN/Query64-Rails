@@ -6,6 +6,24 @@ on:
       - main
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+
+      - name: Install test depedencies and run tests
+        run: |
+          cd spec/dummy
+          bundle install
+          rails test
+
   build:
     runs-on: ubuntu-latest
 
