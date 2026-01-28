@@ -9,19 +9,30 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15
+        ports:
+          -5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: query64_test
+
     steps:
       - uses: actions/checkout@v3
-
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3'
+          bundler-cache: true
 
       - name: Install test depedencies and run tests
         run: |
           cd spec/dummy
           bundle install
+          rails db:prepare
           rails test
 
   build:
