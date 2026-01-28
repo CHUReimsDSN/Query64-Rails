@@ -18,9 +18,12 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: query64_test
+        options: >-
+          --health-cmd="pg_isready -U postgres"
 
     env:
       RAILS_ENV: test
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/query64_test
 
     steps:
       - uses: actions/checkout@v3
