@@ -18,8 +18,8 @@ module Query64
 
     def initialize(request_params)
       resource_class_name = request_params[:resourceName]
-      aggrid_params = request_params[:agGridServerParams]
-      columns_to_select_params = request_params[:columnsToDisplay]
+      aggrid_params = request_params[:agGridServerParams] || {}
+      columns_to_select_params = request_params[:columnsToDisplay] || []
       context = request_params[:context]
 
       self.resource_class = resource_class_name.constantize
@@ -33,7 +33,7 @@ module Query64
       self.joins_data = {}
       self.sub_request_mode = false
       self.filters_must_apply = {}
-      self.export_mode = request_params[:export_mode] || false
+      self.export_mode = request_params[:export_mode] == true || false
       self.context = context.nil? ? nil : context.to_h
       sanitize_params(aggrid_params, columns_to_select_params)
       add_additional_row_filters(aggrid_params)

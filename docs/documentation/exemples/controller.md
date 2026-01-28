@@ -1,8 +1,5 @@
 ---
-layout: default
 title: Utilisation simple dans un controller
-parent: Exemples
-nav_order: 1
 ---
 
 # Utilisation simple dans un controller  

@@ -14,6 +14,10 @@ module Query64
         raise "Method must be called from ActiveRecord::Base inherited class"
       end
 
+      if !self.respond_to? (:query64_column_builder)
+        raise "No method 'query64_column_builder' is defined in the #{self.to_s} model"
+      end
+
       policies = Query64.try_model_method_with_args(self, :query64_column_builder, context)
       if policies.class != Array
         policies = []
