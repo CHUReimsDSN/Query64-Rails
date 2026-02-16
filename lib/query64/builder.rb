@@ -365,7 +365,7 @@ module Query64
 
           column_name = column_meta_data[:raw_field_name]
           fragments = []
-          fragments << "#{table_alias}.#{column_name}::text = '#{condition[:filter]}'"
+          fragments << "#{table_alias}.#{column_name}::text = '#{filter_quick_search[:filter]}'"
           where_fragments << fragments.join(' OR ')
         end
 
