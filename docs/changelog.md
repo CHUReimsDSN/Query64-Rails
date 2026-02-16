@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+## 1.5.2
+
+- Correction des filtres vides pour l'opérateur 'equals' pour les 'string' et les 'date'
+
 ## 1.5.1
 
 - Gestion complémentaire des 'in' et des 'set' pour les filtres
@@ -11,3 +15,4 @@ title: Changelog
 ## 1.5.0
 
 - Nouvelle doc
+
