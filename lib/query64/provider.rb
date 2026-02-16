@@ -21,7 +21,7 @@ module Query64
       resource_class_name = request_params[:resourceName]
       aggrid_params = request_params[:agGridServerParams] || {}
       columns_to_select_params = request_params[:columnsToDisplay] || []
-      quick_search = request_params[:quicSearch] || nil
+      quick_search = request_params[:quickSearch] || nil
       context = request_params[:context]
 
       self.resource_class = resource_class_name.constantize
