@@ -259,11 +259,19 @@ module Query64
                       fragments << "#{table_alias}.#{column_name} IS NULL"
                     else
                       fragments << "#{table_alias}.#{column_name} = #{condition[:filter]}"
-                    end
+                    end                    
                   when :date
+                    if condition[:filter] == ""
+                      fragments << "#{table_alias}.#{column_name} IS NULL"
+                    else
                     fragments << "#{table_alias}.#{column_name}::date = '#{condition[:dateFrom]}'"
+                    end
                   else
-                    fragments << "#{table_alias}.#{column_name} = '#{condition[:filter]}'"
+                    if condition[:filter] == ""
+                      fragments << "#{table_alias}.#{column_name} IS NULL"
+                    else
+                      fragments << "#{table_alias}.#{column_name} ='#{condition[:filter]}'"
+                    end
                 end
 
 
