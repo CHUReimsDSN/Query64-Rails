@@ -7,6 +7,7 @@ module Query64
                   :limit,
                   :offset,
                   :filters,
+                  :filters_quick_search,
                   :groups,
                   :sorts,
                   :joins_data,
@@ -20,6 +21,7 @@ module Query64
       resource_class_name = request_params[:resourceName]
       aggrid_params = request_params[:agGridServerParams] || {}
       columns_to_select_params = request_params[:columnsToDisplay] || []
+      quick_search = request_params[:quicSearch] || nil
       context = request_params[:context]
 
       self.resource_class = resource_class_name.constantize
@@ -27,6 +29,7 @@ module Query64
       self.alias_start_table_sub_request = "start_table_sub_request"
       self.columns_to_select_meta_data = []
       self.filters = []
+      self.filters_quick_search = []
       self.groups = []
       self.sorts = []
       self.group_mode_data = nil
@@ -47,6 +50,7 @@ module Query64
       fill_joins_data_for_count_and_group
       fill_group_mode_data(aggrid_params)
       fill_sub_request_mode
+      fill_quick_search_condition(quick_search)
     end
 
     private
@@ -79,7 +83,7 @@ module Query64
 
     def sanitize_columns(columns_to_select_params)
       self.columns_to_select_meta_data = self.resource_class.query64_get_builder_metadata(self.context).filter do |meta_data|
-        columns_to_select_params.find {|column_to_select| column_to_select == meta_data[:field_name] } != nil
+        columns_to_select_params.find { |column_to_select| column_to_select == meta_data[:field_name] } != nil
       end
 
       # Ensure primary key of resource is included
@@ -154,7 +158,7 @@ module Query64
       end
       
       if self.columns_to_select_meta_data.empty?
-        raise Query64Exception.new("No column available", 422)
+        raise Query64Exception.new('No column available', 422)
       end
     end
 
@@ -162,7 +166,7 @@ module Query64
       filters = aggrid_params[:filterModel] || {}
       filters.each do |column_filter_name, filter_params|
         
-        if self.filters_must_apply[:column_filter_name] == true
+        if self.filters_must_apply[column_filter_name] == true
           column_metadata = find_column_metadata_in_select(column_filter_name)
           if column_metadata.nil?
             next
@@ -176,7 +180,7 @@ module Query64
         
         if filter_params[:conditions].nil?
           sanitized_filter_params = {}
-          sanitized_filter_params[:operator] = "AND"
+          sanitized_filter_params[:operator] = 'AND'
           sanitized_filter_params[:conditions] = [filter_params]
         else
           sanitized_filter_params = filter_params.deep_dup
@@ -475,6 +479,19 @@ module Query64
         if join_value[:enabled_for_sub_request] == true
           join_value[:paths_to_join].first[:primary_table_alias] = self.alias_start_table_sub_request
         end
+      end
+    end
+
+    def fill_quick_search_condition
+      if quick_search.nil?
+        return
+      end
+      sanitized_quick_search = ActiveRecord::Base.connection.quote_string(quick_search.to_s)
+      self.columns_to_select_meta_data.each do |column_to_select_metadata|
+        filters_quick_search << {
+          filter: sanitized_quick_search
+          column_meta_data: column_to_select_metadata,
+        }
       end
     end
 

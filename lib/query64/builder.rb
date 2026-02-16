@@ -172,10 +172,9 @@ module Query64
     def build_where_filters_sql
       2.times do |index_time|
         where_fragments = []
+
         self.provider.filters.each do |filter_params|
-
           column_meta_data = filter_params[:column_meta_data]
-
           if !column_meta_data[:association_name].nil?
             join_data = self.provider.joins_data[column_meta_data[:association_name]]
             if join_data.nil?
@@ -342,6 +341,32 @@ module Query64
           if filter_params[:operator] == 'AND'
             where_fragments << fragments.join(' AND ')
           end
+        end
+
+        self.provider.filters_quick_search.each do |filter_quick_search|
+          column_meta_data = filter_quick_search[:column_meta_data]
+          if !column_meta_data[:association_name].nil?
+            join_data = self.provider.joins_data[column_meta_data[:association_name]]
+            if join_data.nil?
+              next
+            end
+            table_alias = join_data[:alias_label]
+          else
+            if index_time == 0
+              if self.provider.sub_request_mode
+                table_alias = self.provider.alias_start_table_sub_request
+              else
+                table_alias = self.provider.alias_start_table
+              end
+            else
+              table_alias = self.provider.alias_start_table
+            end
+          end
+
+          column_name = column_meta_data[:raw_field_name]
+          fragments = []
+          fragments << "#{table_alias}.#{column_name}::text = '#{condition[:filter]}'"
+          where_fragments << fragments.join(' OR ')
         end
 
         if where_fragments.empty? || where_fragments.first.empty?
