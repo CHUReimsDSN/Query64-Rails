@@ -482,7 +482,7 @@ module Query64
       end
     end
 
-    def fill_quick_search_condition
+    def fill_quick_search_condition(quick_search)
       if quick_search.nil?
         return
       end
