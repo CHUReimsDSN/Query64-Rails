@@ -489,7 +489,7 @@ module Query64
       sanitized_quick_search = ActiveRecord::Base.connection.quote_string(quick_search.to_s)
       self.columns_to_select_meta_data.each do |column_to_select_metadata|
         filters_quick_search << {
-          filter: sanitized_quick_search
+          filter: sanitized_quick_search,
           column_meta_data: column_to_select_metadata,
         }
       end
