@@ -381,9 +381,9 @@ module Query64
         end
         filter_quick_search_empty = where_fragments_quick_search.empty? || where_fragments_quick_search.first.empty?
         if !filter_quick_search_empty
-          filter_quick_search_sql = where_fragments.each_with_index.reduce("") do |acc, (where_fragment, index)|
+          filter_quick_search_sql = where_fragments_quick_search.each_with_index.reduce("") do |acc, (where_fragment, index)|
             if index == 0
-              acc += "#{where_fragment}"
+              acc += where_fragment
             else
               acc += "OR #{where_fragment}"
             end
