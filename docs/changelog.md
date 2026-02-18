@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+## 1.5.4
+
+- Correction des dictionnaires sur les champs d'association
+
 ## 1.5.3
 
 - Ajout de la recherche rapide
