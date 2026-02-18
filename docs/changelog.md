@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+## 1.5.3
+
+- Ajout de la recherche rapide
+
 ## 1.5.2
 
 - Correction des filtres vides pour l'opérateur 'equals' pour les 'string' et les 'date'
