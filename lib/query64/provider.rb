@@ -49,8 +49,8 @@ module Query64
       fill_joins_data(columns_to_select_params)
       fill_joins_data_for_count_and_group
       fill_group_mode_data(aggrid_params)
-      fill_sub_request_mode
       fill_quick_search_condition(quick_search)
+      fill_sub_request_mode
     end
 
     private
@@ -400,14 +400,21 @@ module Query64
     def fill_joins_data_for_count_and_group
       self.filters.each do |filter|
         association_name = filter[:column_meta_data][:association_name]
-        if !association_name.nil? && self.joins_data[association_name]
+        if association_name != nil && self.joins_data[association_name]
+          self.joins_data[association_name][:enabled_for_count] = true
+          self.joins_data[association_name][:enabled_for_group] = true
+        end
+      end
+      self.filters_quick_search.each do |filter_quick_search|
+        association_name = filter_quick_search[:column_meta_data][:association_name]
+        if association_name != nil && self.joins_data[association_name]
           self.joins_data[association_name][:enabled_for_count] = true
           self.joins_data[association_name][:enabled_for_group] = true
         end
       end
       self.groups.each do |group|
         association_name = group["column_meta_data"]["association_name"]
-        if !association_name.nil? && self.joins_data[association_name]
+        if association_name != nil && self.joins_data[association_name]
           self.joins_data[association_name][:enabled_for_count] = true
           self.joins_data[association_name][:enabled_for_group] = true
         end
@@ -460,6 +467,13 @@ module Query64
       # TODO avoid side effect on joins_data and delay the fill_joins_data
       self.filters.each do |filter|
         association_name = filter[:column_meta_data][:association_name]
+        if association_name.nil?
+          next
+        end
+        self.joins_data[association_name][:enabled_for_sub_request] = true
+      end
+      self.filters_quick_search.each do |filter_quick_search|
+        association_name = filter_quick_search[:column_meta_data][:association_name]
         if association_name.nil?
           next
         end
