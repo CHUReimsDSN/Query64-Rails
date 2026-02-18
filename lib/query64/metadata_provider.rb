@@ -204,20 +204,20 @@ module Query64
     end
 
     def query64_get_column_type_by_sql_type(sql_type)
-      field_type = 'string'
+      field_type = :string
       case sql_type
         when :integer
-          field_type = 'number'
+          field_type = :number
         when :decimal
-          field_type = 'number'
+          field_type = :number
         when :datetime
-          field_type = 'date'
+          field_type = :date
         when :boolean
-          field_type = 'boolean'
+          field_type = :boolean
         when :jsonb
-          field_type = 'object'
+          field_type = :object
       end
-      field_type.to_sym
+      field_type
     end
   end
 

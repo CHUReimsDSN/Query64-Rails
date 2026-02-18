@@ -368,6 +368,7 @@ module Query64
         end
 
         where_sql = ""
+
         filter_empty = where_fragments.empty? || where_fragments.first.empty?
         if !filter_empty
           filter_sql = where_fragments.each_with_index.reduce("") do |acc, (where_fragment, index)|
@@ -379,6 +380,7 @@ module Query64
           end
           where_sql = " #{filter_sql} "
         end
+
         filter_quick_search_empty = where_fragments_quick_search.empty? || where_fragments_quick_search.first.empty?
         if !filter_quick_search_empty
           filter_quick_search_sql = where_fragments_quick_search.each_with_index.reduce("") do |acc, (where_fragment, index)|
@@ -390,11 +392,13 @@ module Query64
           end
           where_sql = "#{where_sql} #{filter_empty ? '' : 'AND' } #{filter_quick_search_sql} "
         end
+
         if !filter_empty || !filter_quick_search_empty
           where_sql = "WHERE #{where_sql}"
         else
           next
         end
+        
         if index_time == 0
           if self.provider.sub_request_mode
             self.sql_string_hash[:sub_request_where] = where_sql

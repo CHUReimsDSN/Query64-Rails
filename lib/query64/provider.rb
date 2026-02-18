@@ -487,7 +487,30 @@ module Query64
         return
       end
       sanitized_quick_search = ActiveRecord::Base.connection.quote_string(quick_search.to_s)
+      map_model_options = {}
       self.columns_to_select_meta_data.each do |column_to_select_metadata|
+        model_name = column_to_select_metadata.association_class_name.to_s
+        options = map_model_options[model_name]
+        if options.nil?
+          options = Query64.try_model_method_with_args(column_to_select_metadata.association_class_name, :query64_quick_search_options, self.context)
+          if options.nil?
+            options = get_default_quick_search_options
+          end
+        end
+        shall_skip = false
+        case column_to_select_metadata.field_type
+        when :string
+          shall_skip = options[:include_string_column]
+        when :date
+          shall_skip = options[:include_datetime_column]
+        when :boolean
+          shall_skip = options[:include_boolean_column]
+        when :object
+          shall_skip = options[:include_jsonb_column]
+        end
+        if shall_skip
+          next
+        end
         filters_quick_search << {
           filter: sanitized_quick_search,
           column_meta_data: column_to_select_metadata,
@@ -549,6 +572,16 @@ module Query64
           type: entry[:filter][:type],
         }
       end
+    end
+
+    def get_default_quick_search_options
+      {
+        include_string_column: true,
+        include_text_column: true,
+        include_datetime_column: false,
+        include_boolean_column: false,
+        include_jsonb_column: false,
+      }
     end
 
   end
