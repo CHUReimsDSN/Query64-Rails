@@ -498,7 +498,7 @@ module Query64
           end
         end
         shall_skip = false
-        case column_to_select_metadata[field_type]
+        case column_to_select_metadata[:field_type]
         when :string
           shall_skip = options[:include_string_column]
         when :date
