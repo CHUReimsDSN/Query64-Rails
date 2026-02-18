@@ -490,6 +490,9 @@ module Query64
       map_model_options = {}
       self.columns_to_select_meta_data.each do |column_to_select_metadata|
         model_class = column_to_select_metadata[:association_class_name]
+        if model_class.nil?
+          model_class = self.resource_class
+        end
         options = map_model_options[model_class.to_s]
         if options.nil?
           options = Query64.try_model_method_with_args(model_class, :query64_quick_search_options, self.context)
