@@ -67,21 +67,14 @@ type RowFilter = {
 
 <br /><br />
 
-## query64_quick_search_options
+## query64_quick_search_columns
 
 ```ruby
-def query64_quick_search_options: (Context?) -> QuickSearchOption
+def query64_quick_search_columns: (Context?) -> Array[String]
 ```
 
 ```ruby
 type Context = Hash[String, untyped]
-type QuickSearchOption = {
-    include_string_column: Boolean,
-    include_number_column: Boolean,
-    include_datetime_column: Boolean,
-    include_boolean_column: Boolean,
-    include_jsonb_column: Boolean,
-}
 ```
 
 <br /><br />

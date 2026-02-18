@@ -488,6 +488,7 @@ module Query64
       end
       sanitized_quick_search = ActiveRecord::Base.connection.quote_string(quick_search.to_s)
       map_model_options = {}
+      options = Query64.try_model_method_with_args(model_class, :query64_quick_search_columns, self.context)
       self.columns_to_select_meta_data.each do |column_to_select_metadata|
         model_class = column_to_select_metadata[:association_class_name]
         if model_class.nil?
@@ -495,26 +496,18 @@ module Query64
         end
         options = map_model_options[model_class.to_s]
         if options.nil?
-          options = Query64.try_model_method_with_args(model_class, :query64_quick_search_options, self.context)
           if options.nil?
-            options = get_default_quick_search_options
+            options = get_default_quick_search_columns
           end
+          map_model_options[model_class.to_s] = options
         end
-        shall_skip = false
-        case column_to_select_metadata[:field_type]
-        when :string
-          shall_skip = options[:include_string_column] != true
-        when :number
-          shall_skip = options[:include_number_column] != true
-        when :date
-          shall_skip = options[:include_datetime_column] != true
-        when :boolean
-          shall_skip = options[:include_boolean_column] != true
-        when :object
-          shall_skip = options[:include_jsonb_column] != true
+        if options.class != Array
+          raise Query64Exception.new("Invalid returned type for method query64_'quick_search_columns' for model #{model_class.to_s}", 500)
         end
-        if shall_skip
-          next
+        if !options.include?('*')
+          if !options.include?(column_to_select_metadata[:raw_field_name])
+            next
+          end
         end
         filters_quick_search << {
           filter: sanitized_quick_search,
@@ -579,14 +572,8 @@ module Query64
       end
     end
 
-    def get_default_quick_search_options
-      {
-        include_string_column: true,
-        include_number_column: true,
-        include_datetime_column: false,
-        include_boolean_column: false,
-        include_jsonb_column: false,
-      }
+    def get_default_quick_search_columns
+      ['*']
     end
 
   end
