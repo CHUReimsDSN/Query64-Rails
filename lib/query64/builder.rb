@@ -390,7 +390,11 @@ module Query64
               acc += " OR #{where_fragment}"
             end
           end
-          where_sql = "#{where_sql} #{filter_empty ? '' : 'AND' } #{filter_quick_search_sql} "
+          if filter_empty
+            where_sql = "#{where_sql} AND (#{filter_quick_search_sql}) "
+          else
+            where_sql = "#{where_sql} #{filter_quick_search_sql} "
+          end
         end
 
         if !filter_empty || !filter_quick_search_empty
