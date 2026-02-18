@@ -489,10 +489,10 @@ module Query64
       sanitized_quick_search = ActiveRecord::Base.connection.quote_string(quick_search.to_s)
       map_model_options = {}
       self.columns_to_select_meta_data.each do |column_to_select_metadata|
-        model_name = column_to_select_metadata.association_class_name.to_s
-        options = map_model_options[model_name]
+        model_class = column_to_select_metadata[:association_class_name]
+        options = map_model_options[model_class.to_s]
         if options.nil?
-          options = Query64.try_model_method_with_args(column_to_select_metadata.association_class_name, :query64_quick_search_options, self.context)
+          options = Query64.try_model_method_with_args(model_class, :query64_quick_search_options, self.context)
           if options.nil?
             options = get_default_quick_search_options
           end
