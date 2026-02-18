@@ -400,14 +400,21 @@ module Query64
     def fill_joins_data_for_count_and_group
       self.filters.each do |filter|
         association_name = filter[:column_meta_data][:association_name]
-        if !association_name.nil? && self.joins_data[association_name]
+        if association_name != nil && self.joins_data[association_name]
+          self.joins_data[association_name][:enabled_for_count] = true
+          self.joins_data[association_name][:enabled_for_group] = true
+        end
+      end
+      self.filters_quick_search.each do |filter_quick_search|
+        association_name = filter_quick_search[:column_meta_data][:association_name]
+        if association_name != nil && self.joins_data[association_name]
           self.joins_data[association_name][:enabled_for_count] = true
           self.joins_data[association_name][:enabled_for_group] = true
         end
       end
       self.groups.each do |group|
         association_name = group["column_meta_data"]["association_name"]
-        if !association_name.nil? && self.joins_data[association_name]
+        if association_name != nil && self.joins_data[association_name]
           self.joins_data[association_name][:enabled_for_count] = true
           self.joins_data[association_name][:enabled_for_group] = true
         end
