@@ -14,6 +14,7 @@ module Query64
       query64Params: [
         :resourceName,
         :shallReturnCount,
+        :quickSearch,
         context: {},
         columnsToDisplay: [],
         agGridServerParams: [

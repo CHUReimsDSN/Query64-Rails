@@ -66,3 +66,15 @@ type RowFilter = {
 ```
 
 <br /><br />
+
+## query64_quick_search_columns
+
+```ruby
+def query64_quick_search_columns: (Context?) -> Array[String]
+```
+
+```ruby
+type Context = Hash[String, untyped]
+```
+
+<br /><br />

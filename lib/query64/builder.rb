@@ -173,9 +173,7 @@ module Query64
       2.times do |index_time|
         where_fragments = []
         self.provider.filters.each do |filter_params|
-
           column_meta_data = filter_params[:column_meta_data]
-
           if !column_meta_data[:association_name].nil?
             join_data = self.provider.joins_data[column_meta_data[:association_name]]
             if join_data.nil?
@@ -344,17 +342,63 @@ module Query64
           end
         end
 
-        if where_fragments.empty? || where_fragments.first.empty?
+        where_fragments_quick_search = []
+        self.provider.filters_quick_search.each do |filter_quick_search|
+          column_meta_data = filter_quick_search[:column_meta_data]
+          if !column_meta_data[:association_name].nil?
+            join_data = self.provider.joins_data[column_meta_data[:association_name]]
+            if join_data.nil?
+              next
+            end
+            table_alias = join_data[:alias_label]
+          else
+            if index_time == 0
+              if self.provider.sub_request_mode
+                table_alias = self.provider.alias_start_table_sub_request
+              else
+                table_alias = self.provider.alias_start_table
+              end
+            else
+              table_alias = self.provider.alias_start_table
+            end
+          end
+
+          column_name = column_meta_data[:raw_field_name]
+          where_fragments_quick_search << "#{table_alias}.#{column_name}::text ILIKE '%#{filter_quick_search[:filter]}%'"
+        end
+
+        where_sql = ""
+
+        filter_empty = where_fragments.empty? || where_fragments.first.empty?
+        if !filter_empty
+          filter_sql = where_fragments.each_with_index.reduce("") do |acc, (where_fragment, index)|
+            if index == 0
+              acc += "(#{where_fragment})"
+            else
+              acc += "AND (#{where_fragment})"
+            end
+          end
+          where_sql = " #{filter_sql} "
+        end
+
+        filter_quick_search_empty = where_fragments_quick_search.empty? || where_fragments_quick_search.first.empty?
+        if !filter_quick_search_empty
+          filter_quick_search_sql = where_fragments_quick_search.each_with_index.reduce("") do |acc, (where_fragment, index)|
+            if index == 0
+              acc += where_fragment
+            else
+              acc += " OR #{where_fragment}"
+            end
+          end
+          where_sql = "#{where_sql} #{filter_empty ? '' : 'AND' } #{filter_quick_search_sql} "
+        end
+
+        if !filter_empty || !filter_quick_search_empty
+          where_sql = "WHERE #{where_sql}"
+        else
           next
         end
-        where_sql = where_fragments.each_with_index.reduce("") do |acc, (where_fragment, index)|
-          if index == 0
-            acc += "(#{where_fragment})"
-          else
-            acc += "AND (#{where_fragment})"
-          end
-        end
-        where_sql = "WHERE #{where_sql}"
+        
         if index_time == 0
           if self.provider.sub_request_mode
             self.sql_string_hash[:sub_request_where] = where_sql

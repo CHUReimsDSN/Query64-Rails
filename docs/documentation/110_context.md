@@ -31,8 +31,7 @@ end
 ```
 
 ::: danger Attention
-Ne pas se baser sur le contexte pour définir des politiques de sécurité, 
-car celui-ci provient entièrement du client.
+Le context provient de l'interface, il est donc nécessaire de passer par une étape de purge avant d'effectuer une logique métier.
 :::
 
 ::: warning Important 
