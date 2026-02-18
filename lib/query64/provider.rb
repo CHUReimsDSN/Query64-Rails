@@ -465,7 +465,7 @@ module Query64
         end
         self.joins_data[association_name][:enabled_for_sub_request] = true
       end
-      self.filter_quick_search.each do |filter_quick_search|
+      self.filters_quick_search.each do |filter_quick_search|
         association_name = filter_quick_search[:column_meta_data][:association_name]
         if association_name.nil?
           next
