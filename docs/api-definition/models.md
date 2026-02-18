@@ -77,7 +77,7 @@ def query64_quick_search_options: (Context?) -> QuickSearchOption
 type Context = Hash[String, untyped]
 type QuickSearchOption = {
     include_string_column: Boolean,
-    include_text_column: Boolean,
+    include_number_column: Boolean,
     include_datetime_column: Boolean,
     include_boolean_column: Boolean,
     include_jsonb_column: Boolean,

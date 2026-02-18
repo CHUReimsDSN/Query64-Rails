@@ -387,7 +387,7 @@ module Query64
             if index == 0
               acc += where_fragment
             else
-              acc += "OR #{where_fragment}"
+              acc += " OR #{where_fragment}"
             end
           end
           where_sql = "#{where_sql} #{filter_empty ? '' : 'AND' } #{filter_quick_search_sql} "

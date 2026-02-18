@@ -15,6 +15,7 @@ Les options de la recherche rapide permettent de sélectionner les colonnes sur 
 def self.query64_quick_search_options
   {
     include_string_column: true,
+    include_number_column: true,
     include_datetime_column: false,
     include_boolean_column: false,
     include_jsonb_column: false,
