@@ -128,7 +128,7 @@ module Query64
     def query64_get_all_metadata(context = nil)
       metadata = []
       self.columns_hash.each do |key_column, value_column|
-        label_name = query64_beautify_column_name(key_column, nil, context)
+        label_name = query64_beautify_column_name(key_column, self, context)
         field_type = query64_get_column_type_by_sql_type(value_column.type)
         metadata << {
           raw_field_name: key_column,
@@ -149,7 +149,8 @@ module Query64
         association_names_done << association.name
         association_class = association.class_name.constantize
         association_class.columns_hash.each do |key_column, value_column|
-          label_name = query64_beautify_column_name(key_column, association_class, context)
+          segment_label_name = query64_beautify_column_name(key_column, association_class, context)
+          label_name = "#{association_class.to_s} : #{segment_label_name}"
           field_type = query64_get_column_type_by_sql_type(value_column.type)        
           metadata << { 
             raw_field_name: key_column,
@@ -178,7 +179,7 @@ module Query64
     end
 
     private
-    def query64_beautify_column_name(column_name, association_class = nil, context = nil)
+    def query64_beautify_column_name(column_name, model_class, context = nil)
       generic_labels = {
         created_at: 'Créé le',
         updated_at: 'Mis à jour le',
@@ -186,7 +187,7 @@ module Query64
         updated_by: 'Mis à jour par'
       }
 
-      class_column_labels = Query64.try_model_method_with_args(self, :query64_column_dictionary, context)
+      class_column_labels = Query64.try_model_method_with_args(model_class, :query64_column_dictionary, context)
       if class_column_labels.nil?
         class_column_labels = {}
       end
@@ -195,10 +196,6 @@ module Query64
       label = label_hash[column_name.to_sym]
       if label.nil?
         label = column_name.capitalize.gsub('_', ' ')
-      end
-      if !association_class.nil?
-        beauty_association_class = association_class
-        label = "#{beauty_association_class.to_s} : #{label}"
       end
       label
     end
