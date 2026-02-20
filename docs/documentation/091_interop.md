@@ -29,7 +29,7 @@ class MyController < ApplicationController
 
 end
 ```
-
+ 
 ::: warning Important
 Les routes doivent utiliser les méthodes POST / PUT / PATCH pour recevoir les données du client.
 :::
