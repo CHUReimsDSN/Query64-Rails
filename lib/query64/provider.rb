@@ -46,10 +46,10 @@ module Query64
       sanitize_row_group_cols(aggrid_params)
       sanitize_group_keys(aggrid_params)
       sanitize_sorts(aggrid_params)
+      fill_quick_search_condition(quick_search)
       fill_joins_data(columns_to_select_params)
       fill_joins_data_for_count_and_group
       fill_group_mode_data(aggrid_params)
-      fill_quick_search_condition(quick_search)
       fill_sub_request_mode
     end
 
@@ -523,7 +523,7 @@ module Query64
             next
           end
         end
-        filters_quick_search << {
+        self.filters_quick_search << {
           filter: sanitized_quick_search,
           column_meta_data: column_to_select_metadata,
         }
