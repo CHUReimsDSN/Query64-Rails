@@ -221,6 +221,30 @@ module Query64
                     fragments << "#{sub_fragment_null}#{table_alias}.#{column_name} IN (#{condition[:filters].map{|filter| "'#{filter}'"}.join(', ')})"
                 end
 
+            when 'notIn'
+                if condition[:filters].empty?
+                  next
+                end
+                sub_fragment_null = ""
+                if condition[:filters].include? "null"
+                  sub_fragment_null = "#{table_alias}.#{column_name} IS NULL"
+                  condition[:filters] = condition[:filters].filter do |value_select|
+                    value_select != "null"
+                  end
+                  if condition[:filters].length == 0
+                    fragments << sub_fragment_null
+                    next
+                  else
+                    sub_fragment_null = sub_fragment_null.concat " OR "
+                  end
+                end
+                case column_meta_data[:field_type]
+                  when :number
+                    fragments << "#{sub_fragment_null}#{table_alias}.#{column_name} NOT IN (#{condition[:filters].join(', ')})"
+                  else
+                    fragments << "#{sub_fragment_null}#{table_alias}.#{column_name} NOT IN (#{condition[:filters].map{|filter| "'#{filter}'"}.join(', ')})"
+                end
+
             when 'set'
                 if condition[:values].empty?
                   next

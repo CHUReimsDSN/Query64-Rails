@@ -46,7 +46,7 @@ type ColumnDictionary = Hash[Symbol, String]
 ## query64_additional_row_filters
 
 ```ruby
-def query64_additional_row_filters: (Context?) -> RowFilter
+def query64_additional_row_filters: (Context?) -> Array[RowFilter]
 ```
 
 ```ruby
@@ -58,9 +58,14 @@ type RowFilter = {
 
   # Filtre défini de la même manière que dans l'AgGrid
   filter: {
-    column: String
-    type: 'in' | 'contains' | 'equals' | 'notEqual' | 'notContains' | 'empty' | 'blank' | 'notEmpty' | 'greaterThan' | 'lessThan' | 'inRange'
-    filter: String
+    column: String,
+    type: 'in' | 'notIn' | 'contains' | 'equals' | 'notEqual' | 'notContains' | 'empty' | 'blank' | 'notEmpty' | 'greaterThan' | 'lessThan' | 'inRange',
+    filter: String,
+    filters: Array[untyped],
+    filterTo: String,
+    dateFrom: String,
+    dateTo: String,
+    values: Array[untyped],
   }
 }
 ```

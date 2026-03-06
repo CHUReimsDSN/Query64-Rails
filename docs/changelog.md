@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+## 1.5.5
+
+- Ajout du 'notIn' pour les filtres de 'query64_additional_row_filters'
+
 ## 1.5.4
 
 - Correction des dictionnaires sur les champs d'association
