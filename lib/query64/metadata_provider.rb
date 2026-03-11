@@ -201,7 +201,7 @@ module Query64
     end
 
     def query64_get_column_type_by_sql_type(sql_type)
-      field_type = :stringp
+      field_type = :string
       case sql_type
         when :integer
           field_type = :number
