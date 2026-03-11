@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+## 1.5.6
+
+- Prise en compte des types 'date' pour PostgreSQL
+
 ## 1.5.5
 
 - Ajout du 'notIn' pour les filtres de 'query64_additional_row_filters'
