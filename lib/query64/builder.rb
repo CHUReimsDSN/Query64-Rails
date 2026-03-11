@@ -288,6 +288,12 @@ module Query64
                     else
                     fragments << "#{table_alias}.#{column_name}::date = '#{condition[:dateFrom]}'"
                     end
+                  when :datetime
+                    if condition[:filter] == ""
+                      fragments << "#{table_alias}.#{column_name} IS NULL"
+                    else
+                    fragments << "#{table_alias}.#{column_name}::date = '#{condition[:dateFrom]}'"
+                    end
                   else
                     if condition[:filter] == ""
                       fragments << "#{table_alias}.#{column_name} IS NULL"
@@ -306,6 +312,8 @@ module Query64
                       fragments << "#{table_alias}.#{column_name} != #{condition[:filter]}"
                     end
                   when :date
+                    fragments << "#{table_alias}.#{column_name}::date != '#{condition[:dateFrom]}'"
+                  when :datetime
                     fragments << "#{table_alias}.#{column_name}::date != '#{condition[:dateFrom]}'"
                   else
                     fragments << "#{table_alias}.#{column_name} != '#{condition[:filter]}'"
@@ -330,6 +338,8 @@ module Query64
                     fragments << "#{table_alias}.#{column_name} > #{condition[:filter]}"
                   when :date
                     fragments << "#{table_alias}.#{column_name} > '#{condition[:dateFrom]}'"
+                  when :datetime
+                    fragments << "#{table_alias}.#{column_name} > '#{condition[:dateFrom]}'"
                 else
                   nil
                 end
@@ -340,6 +350,8 @@ module Query64
                     fragments << "#{table_alias}.#{column_name} < #{condition[:filter]}"
                   when :date
                     fragments << "#{table_alias}.#{column_name} < '#{condition[:dateFrom]}'"
+                  when :datetime
+                    fragments << "#{table_alias}.#{column_name} < '#{condition[:dateFrom]}'"
                 else
                   nil
                 end
@@ -348,9 +360,11 @@ module Query64
             when 'inRange'
               case column_meta_data[:field_type]
               when :number
-                    fragments << "#{table_alias}.#{column_name} BETWEEN #{condition[:filter]} AND #{condition[:filterTo]}"
+                fragments << "#{table_alias}.#{column_name} BETWEEN #{condition[:filter]} AND #{condition[:filterTo]}"
               when :date
-                    fragments << "#{table_alias}.#{column_name} BETWEEN '#{condition[:dateFrom]}' AND '#{condition[:dateTo]}'"
+                fragments << "#{table_alias}.#{column_name} BETWEEN '#{condition[:dateFrom]}' AND '#{condition[:dateTo]}'"
+              when :datetime
+                fragments << "#{table_alias}.#{column_name} BETWEEN '#{condition[:dateFrom]}' AND '#{condition[:dateTo]}'"
               else
                 nil
               end
