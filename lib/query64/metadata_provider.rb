@@ -209,6 +209,8 @@ module Query64
           field_type = :number
         when :datetime
           field_type = :date
+        when :date
+          field_type = :date
         when :boolean
           field_type = :boolean
         when :jsonb
