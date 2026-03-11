@@ -201,14 +201,14 @@ module Query64
     end
 
     def query64_get_column_type_by_sql_type(sql_type)
-      field_type = :string
+      field_type = :stringp
       case sql_type
         when :integer
           field_type = :number
         when :decimal
           field_type = :number
         when :datetime
-          field_type = :date
+          field_type = :datetime
         when :date
           field_type = :date
         when :boolean
