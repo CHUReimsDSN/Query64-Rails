@@ -7,7 +7,7 @@ title: Définition API
 ## query64_column_builder
 
 ```ruby
-def query64_column_builder: (Context?) -> ColumnBuilder[]
+def self.query64_column_builder: (Context?) -> ColumnBuilder[]
 ```
 
 ```ruby
@@ -33,7 +33,7 @@ type ColumnBuilder = {
 ## query64_column_dictionary
 
 ```ruby
-def query64_column_dictionary: (Context?) -> ColumnDictionary
+def self.query64_column_dictionary: (Context?) -> ColumnDictionary
 ```
 
 ```ruby
@@ -46,7 +46,7 @@ type ColumnDictionary = Hash[Symbol, String]
 ## query64_additional_row_filters
 
 ```ruby
-def query64_additional_row_filters: (Context?) -> Array[RowFilter]
+def self.query64_additional_row_filters: (Context?) -> Array[RowFilter]
 ```
 
 ```ruby
@@ -75,7 +75,7 @@ type RowFilter = {
 ## query64_quick_search_columns
 
 ```ruby
-def query64_quick_search_columns: (Context?) -> Array[String]
+def self.query64_quick_search_columns: (Context?) -> Array[String]
 ```
 
 ```ruby
