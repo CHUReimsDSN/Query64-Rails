@@ -283,13 +283,13 @@ module Query64
                       fragments << "#{table_alias}.#{column_name} = #{condition[:filter]}"
                     end                    
                   when :date
-                    if condition[:filter] == ""
+                    if condition[:dateFrom] == ""
                       fragments << "#{table_alias}.#{column_name} IS NULL"
                     else
                     fragments << "#{table_alias}.#{column_name}::date = '#{condition[:dateFrom]}'"
                     end
                   when :datetime
-                    if condition[:filter] == ""
+                    if condition[:dateFrom] == ""
                       fragments << "#{table_alias}.#{column_name} IS NULL"
                     else
                     fragments << "#{table_alias}.#{column_name}::date = '#{condition[:dateFrom]}'"

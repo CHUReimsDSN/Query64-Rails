@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+## 1.5.7
+
+- Correction des filtres `equals` sur les champs de type `date`et `datetime`
+
 ## 1.5.6
 
 - Prise en compte des types 'date' pour PostgreSQL
