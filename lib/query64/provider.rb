@@ -570,18 +570,32 @@ module Query64
           end
           column_name = self.resource_class.query64_serialize_relation_key_column(association, entry[:filter][:column])
         end
-        self.filters_must_apply[:column_name] = true
+        self.filters_must_apply[column_name] = true
         if entry[:filter][:filterType] == 'set'
           entry[:filter][:filter] = 'set'
         end
+        conditions = [
+          {
+              filter: entry[:filter][:filter],
+              filterTo: entry[:filter][:filterTo],
+              dateFrom: entry[:filter][:dateFrom],
+              dateTo: entry[:filter][:dateTo],
+              filters: entry[:filter][:filters],
+              values: entry[:filter][:values],
+              type: entry[:filter][:type],
+            }
+        ]
+        filter = aggrid_params[:filterModel][column_name]
+        if filter != nil
+          if filter[:conditions].nil?
+            conditions << filter
+          else
+            conditions = conditions + filter[:conditions]
+          end
+        end
         aggrid_params[:filterModel][column_name] = {
-          filter: entry[:filter][:filter],
-          filterTo: entry[:filter][:filterTo],
-          dateFrom: entry[:filter][:dateFrom],
-          dateTo: entry[:filter][:dateTo],
-          filters: entry[:filter][:filters],
-          values: entry[:filter][:values],
-          type: entry[:filter][:type],
+          operator: 'AND',
+          conditions: conditions
         }
       end
     end
