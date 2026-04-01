@@ -574,14 +574,28 @@ module Query64
         if entry[:filter][:filterType] == 'set'
           entry[:filter][:filter] = 'set'
         end
+        conditions = [
+          {
+              filter: entry[:filter][:filter],
+              filterTo: entry[:filter][:filterTo],
+              dateFrom: entry[:filter][:dateFrom],
+              dateTo: entry[:filter][:dateTo],
+              filters: entry[:filter][:filters],
+              values: entry[:filter][:values],
+              type: entry[:filter][:type],
+            }
+        ]
+        filter = aggrid_params[:filterModel][column_name]
+        if filter != nil
+          if filter[:conditions].nil?
+            conditions << filter
+          else
+            conditions = conditions + filter[:conditions]
+          end
+        end
         aggrid_params[:filterModel][column_name] = {
-          filter: entry[:filter][:filter],
-          filterTo: entry[:filter][:filterTo],
-          dateFrom: entry[:filter][:dateFrom],
-          dateTo: entry[:filter][:dateTo],
-          filters: entry[:filter][:filters],
-          values: entry[:filter][:values],
-          type: entry[:filter][:type],
+          operator: 'AND',
+          conditions: conditions
         }
       end
     end
