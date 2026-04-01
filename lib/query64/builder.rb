@@ -413,7 +413,7 @@ module Query64
             if index == 0
               acc += "(#{where_fragment})"
             else
-              acc += "AND (#{where_fragment})"
+              acc += " AND (#{where_fragment})"
             end
           end
           where_sql = " #{filter_sql} "
