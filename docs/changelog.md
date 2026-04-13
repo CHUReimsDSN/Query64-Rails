@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+## 1.5.8
+
+- Les filtres de 'query64_additional_row_filters' sont désormais toujours appliqués même si les colonnes ne sont pas démander coté client
+
 ## 1.5.7
 
 - Correction des filtres `equals` sur les champs de type `date`et `datetime`
