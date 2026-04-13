@@ -167,15 +167,12 @@ module Query64
       filters.each do |column_filter_name, filter_params|
         
         if self.filters_must_apply[column_filter_name] == true
-          column_metadata = find_column_metadata_in_select(column_filter_name)
-          if column_metadata.nil?
-            next
-          end
+          column_metadata = find_column_metadata(column_filter_name)
         else
-          column_metadata = find_column_metadata(self.resource_class, column_filter_name)
-          if column_metadata.nil?
-            next
-          end
+          column_metadata = find_column_metadata_in_select(column_filter_name)
+        end
+        if column_metadata.nil?
+          next
         end
         
         if filter_params[:conditions].nil?
@@ -538,9 +535,9 @@ module Query64
       end
     end
 
-    def find_column_metadata(resource_class, column_serialized_name)
+    def find_column_metadata(column_serialized_name)
       deserialized_column_filter = self.resource_class.query64_deserialize_relation_key_column(column_serialized_name)
-      resource_class.query64_get_all_metadata(self.context).find do |column_to_select|
+      self.resource_class.query64_get_all_metadata(self.context).find do |column_to_select|
         deserialized_column_filter[:raw_field_name] == column_to_select[:raw_field_name] &&
           deserialized_column_filter[:association_name] == column_to_select[:association_name]
       end
