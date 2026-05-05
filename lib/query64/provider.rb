@@ -259,7 +259,9 @@ module Query64
     def fill_joins_data(columns_to_select_params)
       self.columns_to_select_meta_data.each do |meta_data|
 
-        next if meta_data[:association_name].nil?
+        if meta_data[:association_name].nil?
+          next
+        end
         
         metadata_join_key = self.joins_data.keys.find do |join_data_key|
           join_data_key == meta_data[:association_name]
@@ -464,21 +466,21 @@ module Query64
       # TODO avoid side effect on joins_data and delay the fill_joins_data
       self.filters.each do |filter|
         association_name = filter[:column_meta_data][:association_name]
-        if association_name.nil?
+        if association_name.nil? || self.joins_data[association_name].nil?
           next
         end
         self.joins_data[association_name][:enabled_for_sub_request] = true
       end
       self.filters_quick_search.each do |filter_quick_search|
         association_name = filter_quick_search[:column_meta_data][:association_name]
-        if association_name.nil?
+        if association_name.nil? || self.joins_data[association_name].nil?
           next
         end
         self.joins_data[association_name][:enabled_for_sub_request] = true
       end
       self.sorts.each do |sort|
         association_name = sort[:column_meta_data][:association_name]
-        if association_name.nil?
+        if association_name.nil? || self.joins_data[association_name].nil?
           next
         end
         self.joins_data[association_name][:enabled_for_sub_request] = true

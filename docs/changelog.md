@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+## 1.5.9
+
+- Correction d'un crash concernant les filtres déclarés dans la méthode `query64_additional_row_filters`
+
 ## 1.5.8
 
 - Les filtres de `query64_additional_row_filters` sont désormais toujours appliqués même si les colonnes ne sont pas démander coté client
