@@ -38,6 +38,7 @@ module Query64
       self.filters_must_apply = {}
       self.export_mode = request_params[:export_mode] == true || false
       self.context = context.nil? ? nil : context.to_h
+
       sanitize_params(aggrid_params, columns_to_select_params)
       add_additional_row_filters(aggrid_params)
       sanitize_limit_and_offset(aggrid_params)
@@ -292,6 +293,8 @@ module Query64
           enabled_for_sub_request: false
         }
       end
+      # TODO check les colomns des filters must_apply
+      
     end
 
     def get_join_data_recur(klass, association_name, target_association_data)
@@ -330,7 +333,7 @@ module Query64
             foreign_table_alias = "#{foreign_table_name}#{suffix_target_is}"
           end
           foreign_key = reflection.association_primary_key # TODO maybe join_primary_key ?
-          primary_key = reflection.join_foreign_key
+          primary_key = reflection.association_foreign_key # join_foreign_key
           paths_to_join << {
             primary_table_name: table_name,
             primary_table_alias: table_alias,
@@ -353,7 +356,7 @@ module Query64
               foreign_table_alias = "#{foreign_table_name}#{suffix_target_is}"
             end
             primary_key = reflection.association_primary_key  # TODO maybe join_primary_key ?
-            foreign_key = reflection.join_foreign_key
+            foreign_key = reflection.foreign_key # join_foreign_key
             paths_to_join << {
               primary_table_name: table_name,
               primary_table_alias: table_alias,
@@ -371,7 +374,7 @@ module Query64
           foreign_table_name = reflection.klass.table_name
           foreign_table_alias = "#{foreign_table_name}#{suffix_target}"
           foreign_key_source = reflection.foreign_key  # TODO maybe join_foreign_key ?
-          foreign_key_target = reflection.join_foreign_key
+          foreign_key_target = reflection.association_foreign_key # join_foreign_key
           primary_key = reflection.association_primary_key  # TODO maybe join_primary_key ?
           
           paths_to_join << {
