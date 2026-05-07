@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+## 1.5.10
+
+- Correction des données de jointures
+
 ## 1.5.9
 
 - Correction d'un crash concernant les filtres déclarés dans la méthode `query64_additional_row_filters`
