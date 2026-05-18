@@ -61,19 +61,21 @@ module Query64
           mapped_columns = join_data[:columns_to_select].map do |column_to_select|
             "'#{column_to_select}', #{join_data[:alias_label]}.#{column_to_select}"
           end
-          column_sql = """
-            COALESCE(
-              json_agg(
-                DISTINCT jsonb_build_object(
-                  #{mapped_columns.join(', ')}
+          if mapped_columns.any?
+            column_sql = """
+              COALESCE(
+                json_agg(
+                  DISTINCT jsonb_build_object(
+                    #{mapped_columns.join(', ')}
+                  )
                 )
-              )
-            )::text as #{column_meta_data[:association_name]}
-          """
-          if join_data[:enabled_for_sub_request]
-            column_select_sub_request_array << column_sql
-          else
-            column_select_array << column_sql
+              )::text as #{column_meta_data[:association_name]}
+            """
+            if join_data[:enabled_for_sub_request]
+              column_select_sub_request_array << column_sql
+            else
+              column_select_array << column_sql
+            end
           end
           select_association_name_already_done << column_meta_data[:association_name]
         else

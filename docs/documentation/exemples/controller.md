@@ -63,7 +63,6 @@ class Article < ApplicationRecord
 					'contenu',
 					'type_publication'
 				],
-				statement: -> { true },
 			}
 		]
 	end

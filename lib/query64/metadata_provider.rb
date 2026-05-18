@@ -30,7 +30,6 @@ module Query64
       if policy_base_resource.nil?
         policies.unshift({
           columns_to_include: ['*'],
-          statement: -> { true },
         })
       end
       policies.each_with_index do |policy, policy_index|
@@ -44,14 +43,7 @@ module Query64
         if policy[:columns_to_exclude].nil?
           policy[:columns_to_exclude] = []
         end
-        if policy[:statement].nil?
-          policy[:statement] = -> { false }
-        end
 
-        result_policy = policy[:statement].call
-        if !result_policy
-          next
-        end
         if !policy[:association_name].nil?
           resource_class = self.reflect_on_association(policy[:association_name])&.klass
         else
@@ -167,14 +159,13 @@ module Query64
     end
 
     def query64_serialize_relation_key_column(association, key_column)
-      "#{association.name}.#{key_column}::#{association.macro}"
+      "#{association.name}.#{key_column}"
     end
 
     def query64_deserialize_relation_key_column(column_string)
       {
-        raw_field_name: column_string.include?('.') ? column_string.split('.').second.split('::').first : column_string,
+        raw_field_name: column_string.include?('.') ? column_string.split('.').second : column_string,
         association_name: column_string.include?('.') ? column_string.split('.').first.to_sym : nil,
-        association_type: column_string.split('::').second&.to_sym
       }
     end
 

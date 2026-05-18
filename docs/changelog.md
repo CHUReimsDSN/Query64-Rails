@@ -4,9 +4,11 @@ title: Changelog
 
 # Changelog
 
-## 1.5.10
+# 1.5.10
 
 - Correction des données de jointures
+- Les filtres de `query64_additional_row_filters` sont désormais toujours appliqués même si les colonnes ne sont pas démandées coté client
+- Suppression des clés `statements` pour les méthodes de modèle
 
 ## 1.5.9
 
@@ -14,7 +16,7 @@ title: Changelog
 
 ## 1.5.8
 
-- Les filtres de `query64_additional_row_filters` sont désormais toujours appliqués même si les colonnes ne sont pas démander coté client
+- Les filtres de `query64_additional_row_filters` sont désormais toujours appliqués même si les colonnes ne sont pas démandées coté client
 
 ## 1.5.7
 

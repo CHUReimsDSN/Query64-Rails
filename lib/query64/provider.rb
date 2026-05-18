@@ -1,21 +1,21 @@
 module Query64
   class Provider
-    attr_accessor :resource_class,
-                  :alias_start_table,
-                  :alias_start_table_sub_request,
-                  :columns_to_select_meta_data,
-                  :limit,
-                  :offset,
-                  :filters,
-                  :filters_quick_search,
-                  :groups,
-                  :sorts,
-                  :joins_data,
-                  :group_mode_data,
-                  :sub_request_mode,
-                  :filters_must_apply,
-                  :export_mode,
-                  :context
+    attr_reader :resource_class,
+                :alias_start_table,
+                :alias_start_table_sub_request,
+                :columns_to_select_meta_data,
+                :limit,
+                :offset,
+                :filters,
+                :filters_must_apply,
+                :filters_quick_search,
+                :groups,
+                :sorts,
+                :joins_data,
+                :group_mode_data,
+                :sub_request_mode,
+                :export_mode,
+                :context
 
     def initialize(request_params)
       resource_class_name = request_params[:resourceName]
@@ -29,17 +29,16 @@ module Query64
       self.alias_start_table_sub_request = "start_table_sub_request"
       self.columns_to_select_meta_data = []
       self.filters = []
+      self.filters_must_apply = []
       self.filters_quick_search = []
       self.groups = []
       self.sorts = []
       self.group_mode_data = nil
       self.joins_data = {}
       self.sub_request_mode = false
-      self.filters_must_apply = {}
       self.export_mode = request_params[:export_mode] == true || false
       self.context = context.nil? ? nil : context.to_h
 
-      sanitize_params(aggrid_params, columns_to_select_params)
       add_additional_row_filters(aggrid_params)
       sanitize_limit_and_offset(aggrid_params)
       sanitize_columns(columns_to_select_params)
@@ -48,22 +47,13 @@ module Query64
       sanitize_group_keys(aggrid_params)
       sanitize_sorts(aggrid_params)
       fill_quick_search_condition(quick_search)
-      fill_joins_data(columns_to_select_params)
+      fill_joins_data
       fill_joins_data_for_count_and_group
       fill_group_mode_data(aggrid_params)
       fill_sub_request_mode
     end
 
     private
-    def sanitize_params(aggrid_params, columns_to_select_params)
-      if aggrid_params.nil?
-        aggrid_params = {}
-      end
-      if columns_to_select_params.nil?
-        columns_to_select_params = []
-      end
-    end
-
     def sanitize_limit_and_offset(aggrid_params)
       if self.export_mode
         self.limit = "NULL"
@@ -83,8 +73,10 @@ module Query64
     end
 
     def sanitize_columns(columns_to_select_params)
-      self.columns_to_select_meta_data = self.resource_class.query64_get_builder_metadata(self.context).filter do |meta_data|
-        columns_to_select_params.find { |column_to_select| column_to_select == meta_data[:field_name] } != nil
+      self.resource_class.query64_get_builder_metadata(self.context).each do |meta_data|
+        if columns_to_select_params.find { |column_to_select| column_to_select == meta_data[:field_name] } != nil
+          self.columns_to_select_meta_data << meta_data
+        end
       end
 
       # Ensure primary key of resource is included
@@ -165,23 +157,14 @@ module Query64
 
     def sanitize_conditions(aggrid_params)
       filters = aggrid_params[:filterModel] || {}
-      filters.each do |column_filter_name, filter_params|
-        
-        if self.filters_must_apply[column_filter_name] == true
-          column_metadata = find_column_metadata(column_filter_name)
-        else
-          column_metadata = find_column_metadata_in_select(column_filter_name)
-        end
-        if column_metadata.nil?
-          next
-        end
-        
+      additional_filters = aggrid_params[:additionalFilterModel] || {}
+      get_sanitized_filter_by_metata = -> (column_filter_name, filter_params, column_metadata) {
         if filter_params[:conditions].nil?
           sanitized_filter_params = {}
           sanitized_filter_params[:operator] = 'AND'
           sanitized_filter_params[:conditions] = [filter_params]
         else
-          sanitized_filter_params = filter_params.deep_dup
+          sanitized_filter_params = Marshal.load(Marshal.dump(filter_params))
         end
         sanitized_filter_params[:conditions] = sanitized_filter_params[:conditions].map do |condition|
           if condition[:filterType] == 'set'
@@ -196,10 +179,25 @@ module Query64
           condition[:values] = (condition[:values] || []).map { |filter| ActiveRecord::Base.connection.quote_string(filter).to_s }
           condition
         end
-        
         sanitized_filter_params[:column_meta_data] = column_metadata
         sanitized_filter_params[:column_filter_name] = column_filter_name
-        self.filters << sanitized_filter_params
+        sanitized_filter_params
+      }
+
+      filters.each do |column_filter_name, filter_params|
+        column_metadata = find_column_metadata_in_select(column_filter_name)
+        if column_metadata.nil?
+          next
+        end
+        self.filters << get_sanitized_filter_by_metata.call(column_filter_name, filter_params, column_metadata)
+      end
+
+      additional_filters.each do |column_filter_name, filter_params|
+        column_metadata = find_column_metadata(column_filter_name)
+        if column_metadata.nil?
+          next
+        end
+        self.filters_must_apply << get_sanitized_filter_by_metata.call(column_filter_name, filter_params, column_metadata)
       end
     end
 
@@ -207,7 +205,9 @@ module Query64
       row_group_cols = aggrid_params[:rowGroupCols] || []
       row_group_cols.each do |row_group_col|
         column_metadata = find_column_metadata_in_select(row_group_col[:id])
-        next if column_metadata.nil?
+        if column_metadata.nil?
+          next
+        end
         row_group_col[:column_meta_data] = column_metadata
         row_group_col[:id] = ActiveRecord::Base.connection.quote_string(row_group_col[:id]&.to_s)
         self.groups << row_group_col
@@ -257,44 +257,73 @@ module Query64
       end
     end
 
-    def fill_joins_data(columns_to_select_params)
-      self.columns_to_select_meta_data.each do |meta_data|
+    def fill_joins_data
+      self.columns_to_select_meta_data.each do |metadata|
 
-        if meta_data[:association_name].nil?
+        if metadata[:association_name].nil?
           next
         end
         
         metadata_join_key = self.joins_data.keys.find do |join_data_key|
-          join_data_key == meta_data[:association_name]
+          join_data_key == metadata[:association_name]
         end
 
         if metadata_join_key
-          self.joins_data[metadata_join_key][:columns_to_select] << meta_data[:raw_field_name]
+          self.joins_data[metadata_join_key][:columns_to_select] << metadata[:raw_field_name]
           next
         end
         
         association_data = {
-          name: meta_data[:association_name],
-          target_table_name: meta_data[:association_class_name].table_name,
-          target_class_name: meta_data[:association_class_name],
+          name: metadata[:association_name],
+          target_table_name: metadata[:association_class_name].table_name,
+          target_class_name: metadata[:association_class_name],
         }
-        paths_to_join = get_join_data_recur(self.resource_class, meta_data[:association_name], association_data)
+        paths_to_join = get_join_data_recur(self.resource_class, metadata[:association_name], association_data)
 
-        columns_to_select = [meta_data[:raw_field_name]]
+        columns_to_select = [metadata[:raw_field_name]]
 
-        self.joins_data[meta_data[:association_name]] = {
+        self.joins_data[metadata[:association_name]] = {
           alias_label: paths_to_join.last[:foreign_table_alias],
           paths_to_join: paths_to_join,
-          paths_to_join_count: Marshal.load(Marshal.dump(paths_to_join)), # TODO deep clone ? should try .deep_dup
-          paths_to_join_group: Marshal.load(Marshal.dump(paths_to_join)), # TODO deep clone ? should try .deep_dup
+          paths_to_join_count: Marshal.load(Marshal.dump(paths_to_join)),
+          paths_to_join_group: Marshal.load(Marshal.dump(paths_to_join)),
           columns_to_select: columns_to_select,
           enabled_for_count: false,
           enabled_for_group: false,
           enabled_for_sub_request: false
         }
       end
-      # TODO check les colomns des filters must_apply
-      
+      self.filters_must_apply.each do |filter|
+        metadata = filter[:column_metadata]
+        if metadata[:association_name].nil?
+          next
+        end
+
+        metadata_join_key = self.joins_data.keys.find do |join_data_key|
+          join_data_key == metadata[:association_name]
+        end
+        if metadata_join_key
+          next
+        end
+        
+        association_data = {
+          name: metadata[:association_name],
+          target_table_name: metadata[:association_class_name].table_name,
+          target_class_name: metadata[:association_class_name],
+        }
+        paths_to_join = get_join_data_recur(self.resource_class, metadata[:association_name], association_data)
+
+        self.joins_data[meta_data[:association_name]] = {
+          alias_label: paths_to_join.last[:foreign_table_alias],
+          paths_to_join: paths_to_join,
+          paths_to_join_count: Marshal.load(Marshal.dump(paths_to_join)),
+          paths_to_join_group: Marshal.load(Marshal.dump(paths_to_join)),
+          columns_to_select: [],
+          enabled_for_count: false,
+          enabled_for_group: false,
+          enabled_for_sub_request: false
+        }
+      end
     end
 
     def get_join_data_recur(klass, association_name, target_association_data)
@@ -308,20 +337,18 @@ module Query64
         table_alias = "#{table_name}#{suffix_target_is}"
       end
       reflection = klass.reflect_on_association(association_name)
-      base_association_name = association_name
       if reflection.nil?
-        association_name = ActiveSupport::Inflector.singularize(association_name)
-        reflection = klass.reflect_on_association(association_name)
+        computed_association_name = ActiveSupport::Inflector.singularize(association_name)
       end
       if reflection.nil?
-        association_name = ActiveSupport::Inflector.plurialize(association_name)
-        reflection = klass.reflect_on_association(association_name)
+        computed_association_name = ActiveSupport::Inflector.plurialize(association_name)
       end
-      if reflection.nil?
-        # TODO find in klass with reflect on all association
+      if reflection.nil? # TODO check
+        computed_association_name = resource_class.reflections[association_name]&.options&.dig(:source) || ''
       end
+      reflection = klass.reflect_on_association(computed_association_name)
       if reflection.nil?
-        raise Query64Exception.new("Association #{table_name}.#{base_association_name} cannot be found", 500)
+        raise Query64Exception.new("Association #{table_name}.#{computed_association_name} cannot be found", 500)
       end
 
       case reflection.macro
@@ -332,8 +359,8 @@ module Query64
           else
             foreign_table_alias = "#{foreign_table_name}#{suffix_target_is}"
           end
-          foreign_key = reflection.association_primary_key # TODO maybe join_primary_key ?
-          primary_key = reflection.association_foreign_key # join_foreign_key
+          foreign_key = reflection.association_primary_key
+          primary_key = reflection.association_foreign_key
           paths_to_join << {
             primary_table_name: table_name,
             primary_table_alias: table_alias,
@@ -355,8 +382,8 @@ module Query64
             else
               foreign_table_alias = "#{foreign_table_name}#{suffix_target_is}"
             end
-            primary_key = reflection.association_primary_key  # TODO maybe join_primary_key ?
-            foreign_key = reflection.foreign_key # join_foreign_key
+            primary_key = reflection.association_primary_key
+            foreign_key = reflection.foreign_key
             paths_to_join << {
               primary_table_name: table_name,
               primary_table_alias: table_alias,
@@ -373,9 +400,9 @@ module Query64
 
           foreign_table_name = reflection.klass.table_name
           foreign_table_alias = "#{foreign_table_name}#{suffix_target}"
-          foreign_key_source = reflection.foreign_key  # TODO maybe join_foreign_key ?
-          foreign_key_target = reflection.association_foreign_key # join_foreign_key
-          primary_key = reflection.association_primary_key  # TODO maybe join_primary_key ?
+          foreign_key_source = reflection.foreign_key 
+          foreign_key_target = reflection.association_foreign_key
+          primary_key = reflection.association_primary_key 
           
           paths_to_join << {
             primary_table_name: table_name,
@@ -401,6 +428,13 @@ module Query64
     
     def fill_joins_data_for_count_and_group
       self.filters.each do |filter|
+        association_name = filter[:column_meta_data][:association_name]
+        if association_name != nil && self.joins_data[association_name]
+          self.joins_data[association_name][:enabled_for_count] = true
+          self.joins_data[association_name][:enabled_for_group] = true
+        end
+      end
+      self.filters_must_apply.each do |filter|
         association_name = filter[:column_meta_data][:association_name]
         if association_name != nil && self.joins_data[association_name]
           self.joins_data[association_name][:enabled_for_count] = true
@@ -549,45 +583,38 @@ module Query64
     end
 
     def add_additional_row_filters(aggrid_params)
-      if aggrid_params[:filterModel].nil?
-        aggrid_params[:filterModel] = {}
-      end
-
+      aggrid_params[:additionalFilterModel] = {}
       entries_filter = Query64.try_model_method_with_args(self.resource_class, :query64_additional_row_filters, self.context)
       if entries_filter.class != Array
         entries_filter = []
       end
       entries_filter.each do |entry|
-        result_statement = entry[:statement].call
-        if !result_statement
-          next
-        end
         column_name = ""
-        if entry[:filter][:association_name].nil?
-          column_name = entry[:filter][:column]
+        if entry[:association_name].nil?
+          column_name = entry[:column]
         else
-          association = self.resource_class.reflect_on_association(entry[:filter][:association_name])&.klass
+          association = self.resource_class.reflect_on_association(entry[:association_name])&.klass
           if association.nil?
             next
           end
-          column_name = self.resource_class.query64_serialize_relation_key_column(association, entry[:filter][:column])
+          column_name = self.resource_class.query64_serialize_relation_key_column(association, entry[:column])
         end
         self.filters_must_apply[column_name] = true
-        if entry[:filter][:filterType] == 'set'
-          entry[:filter][:filter] = 'set'
+        if entry[:filterType] == 'set'
+          entry[:filter] = 'set'
         end
         conditions = [
           {
-              filter: entry[:filter][:filter],
-              filterTo: entry[:filter][:filterTo],
-              dateFrom: entry[:filter][:dateFrom],
-              dateTo: entry[:filter][:dateTo],
-              filters: entry[:filter][:filters],
-              values: entry[:filter][:values],
-              type: entry[:filter][:type],
+              filter: entry[:filter],
+              filterTo: entry[:filterTo],
+              dateFrom: entry[:dateFrom],
+              dateTo: entry[:dateTo],
+              filters: entry[:filters],
+              values: entry[:values],
+              type: entry[:type],
             }
         ]
-        filter = aggrid_params[:filterModel][column_name]
+        filter = aggrid_params[:additionalFilterModel][column_name]
         if filter != nil
           if filter[:conditions].nil?
             conditions << filter
@@ -595,7 +622,7 @@ module Query64
             conditions = conditions + filter[:conditions]
           end
         end
-        aggrid_params[:filterModel][column_name] = {
+        aggrid_params[:additionalFilterModel][column_name] = {
           operator: 'AND',
           conditions: conditions
         }
@@ -603,7 +630,7 @@ module Query64
     end
 
     def get_default_quick_search_columns
-      ['*']
+      ['*'].freeze
     end
 
   end
