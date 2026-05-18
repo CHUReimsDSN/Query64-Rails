@@ -1,6 +1,6 @@
 module Query64
   class Provider
-    attr_reader :resource_class,
+    attr_accessor :resource_class,
                 :alias_start_table,
                 :alias_start_table_sub_request,
                 :columns_to_select_meta_data,
@@ -343,7 +343,7 @@ module Query64
       if reflection.nil?
         computed_association_name = ActiveSupport::Inflector.plurialize(association_name)
       end
-      if reflection.nil? # TODO check
+      if reflection.nil?
         computed_association_name = resource_class.reflections[association_name]&.options&.dig(:source) || ''
       end
       reflection = klass.reflect_on_association(computed_association_name)
