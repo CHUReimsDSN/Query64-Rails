@@ -599,7 +599,6 @@ module Query64
           end
           column_name = self.resource_class.query64_serialize_relation_key_column(association, entry[:column])
         end
-        self.filters_must_apply[column_name] = true
         if entry[:filterType] == 'set'
           entry[:filter] = 'set'
         end

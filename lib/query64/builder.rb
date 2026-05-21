@@ -570,7 +570,7 @@ module Query64
     end
 
     def get_results
-      length = 0
+      length = -1
 
       if self.shall_return_count
         length_sql = """
@@ -611,7 +611,7 @@ module Query64
             column_name => value,
           }
         end
-        return { items: items, length: length }
+        return { items: items, row_count: length }
       end
       items_sql = """
         #{self.sql_string_hash[:select_clause]}
@@ -636,7 +636,7 @@ module Query64
         #{self.sql_string_hash[:additional_clause]}
       """
       items = self.provider.resource_class.connection.execute(items_sql).to_a
-      { items: items, length: length }
+      { items: items, row_count: length }
     end
 
     private
