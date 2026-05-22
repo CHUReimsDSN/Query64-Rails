@@ -109,7 +109,7 @@ module Query64
     def query64_get_all_metadata(context = nil)
       metadata = []
       self.columns_hash.each do |key_column, value_column|
-        label_name = query64_beautify_column_name(key_column, self, context)
+        label_name = query64_beautify_column_name(key_column, self, nil, context)
         field_type = query64_get_column_type_by_sql_type(value_column.type)
         metadata << {
           raw_field_name: key_column,
@@ -130,8 +130,7 @@ module Query64
         association_names_done << association.name
         association_class = association.class_name.constantize
         association_class.columns_hash.each do |key_column, value_column|
-          segment_label_name = query64_beautify_column_name(key_column, association_class, context)
-          label_name = "#{association_class.to_s} : #{segment_label_name}"
+          label_name = query64_beautify_column_name(key_column, self, association_class, context)
           field_type = query64_get_column_type_by_sql_type(value_column.type)        
           metadata << { 
             raw_field_name: key_column,
@@ -159,7 +158,7 @@ module Query64
     end
 
     private
-    def query64_beautify_column_name(column_name, model_class, context = nil)
+    def query64_beautify_column_name(column_name, model_class, association_class = nil, context = nil)
       generic_labels = {
         created_at: 'Créé le',
         updated_at: 'Mis à jour le',
@@ -176,7 +175,20 @@ module Query64
       label_hash = generic_labels.merge(class_column_labels)
       label = label_hash[column_name.to_sym]
       if label.nil?
-        label = column_name.capitalize.gsub('_', ' ')
+        segment_label = column_name.capitalize.gsub('_', ' ')
+        if model_class.nil?
+          label = segment_label
+        else
+          class_column_labels = Query64.try_model_method_with_args(association_class, :query64_column_dictionary, context)
+          verify_column_dictionary_method_return(class_column_labels)
+          if class_column_labels.nil?
+            class_column_labels = {}
+          end
+          label = label_hash[column_name.to_sym]
+          if label.nil?
+            label = "#{model_class.to_s} : #{segment_label}"
+          end
+        end
       end
       label
     end
