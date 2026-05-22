@@ -61,19 +61,21 @@ module Query64
           mapped_columns = join_data[:columns_to_select].map do |column_to_select|
             "'#{column_to_select}', #{join_data[:alias_label]}.#{column_to_select}"
           end
-          column_sql = """
-            COALESCE(
-              json_agg(
-                DISTINCT jsonb_build_object(
-                  #{mapped_columns.join(', ')}
+          if mapped_columns.any?
+            column_sql = """
+              COALESCE(
+                json_agg(
+                  DISTINCT jsonb_build_object(
+                    #{mapped_columns.join(', ')}
+                  )
                 )
-              )
-            )::text as #{column_meta_data[:association_name]}
-          """
-          if join_data[:enabled_for_sub_request]
-            column_select_sub_request_array << column_sql
-          else
-            column_select_array << column_sql
+              )::text as #{column_meta_data[:association_name]}
+            """
+            if join_data[:enabled_for_sub_request]
+              column_select_sub_request_array << column_sql
+            else
+              column_select_array << column_sql
+            end
           end
           select_association_name_already_done << column_meta_data[:association_name]
         else
@@ -568,7 +570,7 @@ module Query64
     end
 
     def get_results
-      length = 0
+      length = -1
 
       if self.shall_return_count
         length_sql = """
@@ -609,7 +611,7 @@ module Query64
             column_name => value,
           }
         end
-        return { items: items, length: length }
+        return { items: items, row_count: length }
       end
       items_sql = """
         #{self.sql_string_hash[:select_clause]}
@@ -634,7 +636,7 @@ module Query64
         #{self.sql_string_hash[:additional_clause]}
       """
       items = self.provider.resource_class.connection.execute(items_sql).to_a
-      { items: items, length: length }
+      { items: items, row_count: length }
     end
 
     private

@@ -22,7 +22,7 @@ module Query64
             if (json_key_column[association_name.to_sym].nil?)
               json_key_column[association_name.to_sym] = []
             end
-            json_key_column[association_name.to_sym] << (column_to_display.split('.')[1].split('::')[0] || '')
+            json_key_column[association_name.to_sym] << (column_to_display.split('.')[1] || '')
           end
 
           csv_content = CSV.generate(headers: true, col_sep: ';') do |csv|

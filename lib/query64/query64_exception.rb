@@ -9,7 +9,7 @@ module Query64
     end
 
     def self.new_with_prefix(message, http_status)
-      new("Query64Exception -> #{message}", http_status)
+      new("💣 Query64 Exception : #{message}", http_status)
     end
 
   end

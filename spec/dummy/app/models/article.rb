@@ -8,7 +8,6 @@ class Article < ApplicationRecord
     [
       {
         columns_to_include: ['*'],
-        statement: -> { true }
       }
     ]
     end

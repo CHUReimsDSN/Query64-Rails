@@ -20,3 +20,14 @@ def self.query64_column_dictionary
   }
 end
 ```
+
+Il est également possible de nommer une colonne de relation
+
+```ruby
+# La colonne 'nom_complet' de l'association se nommera 'Auteur' côté client
+def self.query64_column_dictionary
+  {
+    'auteur.nom_complet': 'Auteur'
+  }
+end
+```

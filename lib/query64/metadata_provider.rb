@@ -11,49 +11,30 @@ module Query64
 
     def query64_get_builder_metadata(context = nil)
       unless self < ActiveRecord::Base
-        raise "Method must be called from ActiveRecord::Base inherited class"
+        raise Query64Exception.new("Method must be called from ActiveRecord::Base inherited class", 500)
       end
 
       if !self.respond_to? (:query64_column_builder)
-        raise "No method 'query64_column_builder' is defined in the #{self.to_s} model"
+        raise Query64Exception.new("No method 'query64_column_builder' is defined in the #{self.to_s} model", 500)
       end
 
-      policies = Query64.try_model_method_with_args(self, :query64_column_builder, context)
-      if policies.class != Array
-        policies = []
-      end
-
+      entries = Query64.try_model_method_with_args(self, :query64_column_builder, context)
+      verify_column_builder_method_return(entries)
       allowed_columns = []
-      policy_base_resource = policies.find do |policy|
-        policy[:association_name].nil?
+      policy_base_resource = entries.find do |entry|
+        entry[:association_name].nil?
       end
-      if policy_base_resource.nil?
-        policies.unshift({
-          columns_to_include: ['*'],
-          statement: -> { true },
-        })
-      end
-      policies.each_with_index do |policy, policy_index|
+      entries.each_with_index do |entry, policy_index|
         index_base = policy_index * 1000
-        if policy[:columns_to_include].nil?
-          policy[:columns_to_include] = []
+        if entry[:columns_to_include].include?('*')
+          entry[:columns_to_include] = ['*']
         end
-        if policy[:columns_to_include].include?('*')
-          policy[:columns_to_include] = ['*']
-        end
-        if policy[:columns_to_exclude].nil?
-          policy[:columns_to_exclude] = []
-        end
-        if policy[:statement].nil?
-          policy[:statement] = -> { false }
+        if entry[:columns_to_exclude].nil?
+          entry[:columns_to_exclude] = []
         end
 
-        result_policy = policy[:statement].call
-        if !result_policy
-          next
-        end
-        if !policy[:association_name].nil?
-          resource_class = self.reflect_on_association(policy[:association_name])&.klass
+        if !entry[:association_name].nil?
+          resource_class = self.reflect_on_association(entry[:association_name])&.klass
         else
           resource_class = self
         end
@@ -62,43 +43,43 @@ module Query64
         end
         resource_class_columns = resource_class.column_names
 
-        if policy[:columns_to_include].include?('*')
+        if entry[:columns_to_include].include?('*')
           resource_class_columns.each_with_index do |column_name, column_index|
             existing_column = allowed_columns.find do |allowed_column|
-              allowed_column[:raw_field_name] == column_name && allowed_column[:association_name] == policy[:association_name]
+              allowed_column[:raw_field_name] == column_name && allowed_column[:association_name] == entry[:association_name]
             end
             if existing_column.nil?
               allowed_columns << {
                 index: index_base + column_index,
                 raw_field_name: column_name,
-                association_name: policy[:association_name]
+                association_name: entry[:association_name]
               }
             end
           end
         else
-          policy[:columns_to_include].each_with_index do |column, column_index|
+          entry[:columns_to_include].each_with_index do |column, column_index|
             if resource_class_columns.exclude?(column)
               next
             end
             existing_column = allowed_columns.find do |allowed_column|
-              allowed_column[:raw_field_name] == column && allowed_column[:association_name] == policy[:association_name]
+              allowed_column[:raw_field_name] == column && allowed_column[:association_name] == entry[:association_name]
             end
             if existing_column.nil?
               allowed_columns << {
                 index: index_base + column_index,
                 raw_field_name: column,
-                association_name: policy[:association_name]
+                association_name: entry[:association_name]
               }
             end
           end
         end
 
-        policy[:columns_to_exclude].each do |column|
+        entry[:columns_to_exclude].each do |column|
           index_to_delete = allowed_columns.index do |allowed_column|
             if column == self.primary_key
               next
             end
-            allowed_column[:association_name] == policy[:association_name] && allowed_column[:raw_field_name] == column
+            allowed_column[:association_name] == entry[:association_name] && allowed_column[:raw_field_name] == column
           end
           if index_to_delete.nil?
             next
@@ -127,8 +108,11 @@ module Query64
 
     def query64_get_all_metadata(context = nil)
       metadata = []
+      beautify_name = -> (name) { name.capitalize.gsub('_', ' ') }
+      default_columns_dictionary = query64_get_column_dictionary_pool(self, context)
       self.columns_hash.each do |key_column, value_column|
-        label_name = query64_beautify_column_name(key_column, self, context)
+        label_name = default_columns_dictionary[key_column.to_sym]
+        label_name ||= beautify_name.call(key_column)
         field_type = query64_get_column_type_by_sql_type(value_column.type)
         metadata << {
           raw_field_name: key_column,
@@ -148,9 +132,12 @@ module Query64
         end
         association_names_done << association.name
         association_class = association.class_name.constantize
+        association_columns_dictionary = query64_get_column_dictionary_pool(association_class, context)
         association_class.columns_hash.each do |key_column, value_column|
-          segment_label_name = query64_beautify_column_name(key_column, association_class, context)
-          label_name = "#{association_class.to_s} : #{segment_label_name}"
+          relation_key_name = query64_serialize_relation_key_column(association, key_column)
+          label_name = default_columns_dictionary[relation_key_name.to_sym]
+          label_name ||= association_columns_dictionary[key_column]
+          label_name ||= "#{beautify_name.call(association.name.to_s)} : #{beautify_name.call(key_column)}"
           field_type = query64_get_column_type_by_sql_type(value_column.type)        
           metadata << { 
             raw_field_name: key_column,
@@ -167,37 +154,29 @@ module Query64
     end
 
     def query64_serialize_relation_key_column(association, key_column)
-      "#{association.name}.#{key_column}::#{association.macro}"
+      "#{association.name}.#{key_column}"
     end
 
     def query64_deserialize_relation_key_column(column_string)
       {
-        raw_field_name: column_string.include?('.') ? column_string.split('.').second.split('::').first : column_string,
+        raw_field_name: column_string.include?('.') ? column_string.split('.').second : column_string,
         association_name: column_string.include?('.') ? column_string.split('.').first.to_sym : nil,
-        association_type: column_string.split('::').second&.to_sym
       }
     end
 
     private
-    def query64_beautify_column_name(column_name, model_class, context = nil)
+    def query64_get_column_dictionary_pool(model_class, context)
+      class_column_labels = Query64.try_model_method_with_args(model_class, :query64_column_dictionary, context)
+      verify_column_dictionary_method_return(class_column_labels)
+      class_column_labels ||= {}
       generic_labels = {
         created_at: 'Créé le',
         updated_at: 'Mis à jour le',
         created_by: 'Créé par',
         updated_by: 'Mis à jour par'
       }
-
-      class_column_labels = Query64.try_model_method_with_args(model_class, :query64_column_dictionary, context)
-      if class_column_labels.nil?
-        class_column_labels = {}
-      end
-    
-      label_hash = generic_labels.merge(class_column_labels)
-      label = label_hash[column_name.to_sym]
-      if label.nil?
-        label = column_name.capitalize.gsub('_', ' ')
-      end
-      label
+      labels_hash = generic_labels.merge(class_column_labels)
+      labels_hash
     end
 
     def query64_get_column_type_by_sql_type(sql_type)
@@ -218,6 +197,41 @@ module Query64
       end
       field_type
     end
+
+    def verify_column_builder_method_return(returned_data)
+      return_data_class = returned_data.class
+      raise_with_prefix = -> (message) {
+        raise Query64Exception.new("Method 'query64_column_builder' from model #{self.to_s} returned an invalid structure. #{message}", 500)
+      }
+      if return_data_class != Array
+        raise_with_prefix.call("Returned type #{return_data_class} instead of Array")
+      end
+      returned_data.each_with_index do |entry, index_entry|
+        if entry[:columns_to_include].nil?
+          raise_with_prefix.call("Key 'columns_to_include' cannot be nil (index #{index_entry})")
+        end
+        if entry[:columns_to_include].class != Array
+          raise_with_prefix.call("Key 'columns_to_include' is not an Array (index #{index_entry})")
+        end
+        if entry[:columns_to_exclude] != nil && entry[:columns_to_exclude].class != Array
+          raise_with_prefix.call("Key 'columns_to_exclude' is not an Array or nil (index #{index_entry})")
+        end
+        if entry[:association_name] != nil && entry[:association_name].class != Symbol
+          raise_with_prefix.call("Key 'association_name' is not a Symbol or nil (index #{index_entry})")
+        end
+      end
+    end
+
+    def verify_column_dictionary_method_return(returned_data)
+      return_data_class = returned_data.class
+      raise_with_prefix = -> (message) {
+        raise Query64Exception.new("Method 'query64_column_dictionary' from model #{self.to_s} returned an invalid structure. #{message}", 500)
+      }
+      if return_data_class != NilClass && return_data_class != Hash 
+        raise_with_prefix.call("Returned type #{return_data_class} instead of Hash")
+      end
+    end
+
   end
 
 end

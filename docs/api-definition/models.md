@@ -20,9 +20,6 @@ type ColumnBuilder = {
   # Définit le nom des différentes colonnes à exclure
   columns_to_exclude: String[] = []
 
-  # Callback qui définit si les colonnes doivent être incluses ou non
-  statement: () -> Boolean = () -> false
-
   # Défini la relation
   association_name: Symbol = nil
 }
@@ -52,9 +49,6 @@ def self.query64_additional_row_filters: (Context?) -> Array[RowFilter]
 ```ruby
 type Context = Hash[String, untyped]
 type RowFilter = {
-
-  # Callback qui définit si les colonnes doivent être incluses ou non
-  statement: () -> Boolean = () -> false
 
   # Filtre défini de la même manière que dans l'AgGrid
   filter: {
