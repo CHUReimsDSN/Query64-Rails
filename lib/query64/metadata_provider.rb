@@ -229,7 +229,7 @@ module Query64
       raise_with_prefix = -> (message) {
         raise Query64Exception.new("Method 'query64_column_dictionary' from model #{self.to_s} returned an invalid structure. #{message}", 500)
       }
-      if return_data_class != nil && return_data_class != Hash 
+      if return_data_class != NilClass && return_data_class != Hash 
         raise_with_prefix.call("Returned type #{return_data_class} instead of Hash")
       end
     end

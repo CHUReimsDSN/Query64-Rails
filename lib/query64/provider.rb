@@ -642,7 +642,7 @@ module Query64
       raise_with_prefix = -> (message) {
         raise Query64Exception.new("Method 'query64_quick_search_columns' from model #{self.to_s} returned an invalid structure. #{message}", 500)
       }
-      if return_data_class != nil && return_data_class != Array 
+      if return_data_class != NilClass && return_data_class != Array 
         raise_with_prefix.call("Returned type #{return_data_class} instead of an Array")
       end
     end
@@ -652,7 +652,7 @@ module Query64
       raise_with_prefix = -> (message) {
         raise Query64Exception.new("Method 'query64_additional_row_filters' from model #{self.to_s} returned an invalid structure. #{message}", 500)
       }
-      if return_data_class != nil && return_data_class != Array 
+      if return_data_class != NilClass && return_data_class != Array 
         raise_with_prefix.call("Returned type #{return_data_class} instead of an Array")
       end
     end
