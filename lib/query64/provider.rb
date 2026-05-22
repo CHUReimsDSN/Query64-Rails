@@ -51,6 +51,7 @@ module Query64
       fill_joins_data_for_count_and_group
       fill_group_mode_data(aggrid_params)
       fill_sub_request_mode
+      merge_all_filters
     end
 
     private
@@ -637,10 +638,14 @@ module Query64
       ['*'].freeze
     end
 
+    def merge_all_filters
+      self.filters = self.filters + self.filters_must_apply
+    end
+
     def verify_quick_search_column_method_return(returned_data)
       return_data_class = returned_data.class
       raise_with_prefix = -> (message) {
-        raise Query64Exception.new("Method 'query64_quick_search_columns' from model #{self.to_s} returned an invalid structure. #{message}", 500)
+        raise Query64Exception.new("Method 'query64_quick_search_columns' from model #{self.resource_class.to_s} returned an invalid structure. #{message}", 500)
       }
       if return_data_class != NilClass && return_data_class != Array 
         raise_with_prefix.call("Returned type #{return_data_class} instead of an Array")
@@ -650,7 +655,7 @@ module Query64
     def verify_additional_row_filters_method_return(returned_data)
       return_data_class = returned_data.class
       raise_with_prefix = -> (message) {
-        raise Query64Exception.new("Method 'query64_additional_row_filters' from model #{self.to_s} returned an invalid structure. #{message}", 500)
+        raise Query64Exception.new("Method 'query64_additional_row_filters' from model #{self.resource_class.to_s} returned an invalid structure. #{message}", 500)
       }
       if return_data_class != NilClass && return_data_class != Array 
         raise_with_prefix.call("Returned type #{return_data_class} instead of an Array")
