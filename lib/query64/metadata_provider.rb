@@ -108,8 +108,11 @@ module Query64
 
     def query64_get_all_metadata(context = nil)
       metadata = []
+      beautify_name = -> (name) { name.capitalize.gsub('_', ' ') }
+      default_columns_dictionary = query64_get_column_dictionary_pool(self, context)
       self.columns_hash.each do |key_column, value_column|
-        label_name = query64_beautify_column_name(key_column, self, nil, context)
+        label_name = default_columns_dictionary[key_column]
+        label_name ||= beautify_name.call(key_column)
         field_type = query64_get_column_type_by_sql_type(value_column.type)
         metadata << {
           raw_field_name: key_column,
@@ -129,8 +132,12 @@ module Query64
         end
         association_names_done << association.name
         association_class = association.class_name.constantize
+        association_columns_dictionary = query64_get_column_dictionary_pool(association_class, context)
         association_class.columns_hash.each do |key_column, value_column|
-          label_name = query64_beautify_column_name(key_column, self, association_class, context)
+          relation_key_name = query64_serialize_relation_key_column(association, key_column)
+          label_name = default_columns_dictionary[relation_key_name.to_sym]
+          label_name ||= association_columns_dictionary[key_column]
+          label_name ||= "#{beautify_name.call(association.name.to_s)} : #{beautify_name.call(key_column)}"
           field_type = query64_get_column_type_by_sql_type(value_column.type)        
           metadata << { 
             raw_field_name: key_column,
@@ -158,39 +165,18 @@ module Query64
     end
 
     private
-    def query64_beautify_column_name(column_name, model_class, association_class = nil, context = nil)
+    def query64_get_column_dictionary_pool(model_class, context)
+      class_column_labels = Query64.try_model_method_with_args(model_class, :query64_column_dictionary, context)
+      verify_column_dictionary_method_return(class_column_labels)
+      class_column_labels ||= {}
       generic_labels = {
         created_at: 'Créé le',
         updated_at: 'Mis à jour le',
         created_by: 'Créé par',
         updated_by: 'Mis à jour par'
       }
-
-      class_column_labels = Query64.try_model_method_with_args(model_class, :query64_column_dictionary, context)
-      verify_column_dictionary_method_return(class_column_labels)
-      if class_column_labels.nil?
-        class_column_labels = {}
-      end
-    
-      label_hash = generic_labels.merge(class_column_labels)
-      label = label_hash[column_name.to_sym]
-      if label.nil?
-        segment_label = column_name.capitalize.gsub('_', ' ')
-        if model_class.nil?
-          label = segment_label
-        else
-          class_column_labels = Query64.try_model_method_with_args(association_class, :query64_column_dictionary, context)
-          verify_column_dictionary_method_return(class_column_labels)
-          if class_column_labels.nil?
-            class_column_labels = {}
-          end
-          label = label_hash[column_name.to_sym]
-          if label.nil?
-            label = "#{model_class.to_s} : #{segment_label}"
-          end
-        end
-      end
-      label
+      class_column_labels = generic_labels.merge(class_column_labels)
+      class_column_labels
     end
 
     def query64_get_column_type_by_sql_type(sql_type)
