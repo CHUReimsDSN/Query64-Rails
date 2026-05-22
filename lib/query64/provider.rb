@@ -513,6 +513,13 @@ module Query64
         end
         self.joins_data[association_name][:enabled_for_sub_request] = true
       end
+      self.filters_must_apply.each do |filter|
+        association_name = filter[:column_meta_data][:association_name]
+        if association_name.nil? || self.joins_data[association_name].nil?
+          next
+        end
+        self.joins_data[association_name][:enabled_for_sub_request] = true
+      end
       self.filters_quick_search.each do |filter_quick_search|
         association_name = filter_quick_search[:column_meta_data][:association_name]
         if association_name.nil? || self.joins_data[association_name].nil?
