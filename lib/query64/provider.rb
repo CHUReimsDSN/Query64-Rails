@@ -362,8 +362,10 @@ module Query64
           else
             foreign_table_alias = "#{foreign_table_name}#{suffix_target_is}"
           end
-          foreign_key = reflection.association_primary_key
-          primary_key = reflection.association_foreign_key
+          foreign_key = reflection.options&.dig(:primary_key)
+          foreign_key ||= reflection.association_primary_key
+          primary_key = reflection.options&.dig(:foreign_key)
+          primary_key ||= reflection.association_foreign_key
           paths_to_join << {
             primary_table_name: table_name,
             primary_table_alias: table_alias,
