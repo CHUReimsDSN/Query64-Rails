@@ -202,9 +202,9 @@ module Query64
 
     def verify_column_builder_method_return(returned_data)
       return_data_class = returned_data.class
-      raise_with_prefix = -> do |message|
+      raise_with_prefix = -> (message) {
         raise Query64Exception.new("Method 'query64_column_builder' from model #{self.to_s} returned an invalid structure. #{message}", 500)
-      end
+      }
       if return_data_class != Array
         raise_with_prefix.call("Returned type #{return_data_class} instead of Array")
       end
@@ -226,9 +226,9 @@ module Query64
 
     def verify_column_dictionary_method_return(returned_data)
       return_data_class = returned_data.class
-      raise_with_prefix = -> do |message|
+      raise_with_prefix = -> (message) {
         raise Query64Exception.new("Method 'query64_column_dictionary' from model #{self.to_s} returned an invalid structure. #{message}", 500)
-      end
+      }
       if return_data_class != nil && return_data_class != Hash 
         raise_with_prefix.call("Returned type #{return_data_class} instead of Hash")
       end

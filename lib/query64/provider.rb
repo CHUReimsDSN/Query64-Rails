@@ -639,9 +639,9 @@ module Query64
 
     def verify_quick_search_column_method_return(returned_data)
       return_data_class = returned_data.class
-      raise_with_prefix = -> do |message|
+      raise_with_prefix = -> (message) {
         raise Query64Exception.new("Method 'query64_quick_search_columns' from model #{self.to_s} returned an invalid structure. #{message}", 500)
-      end
+      }
       if return_data_class != nil && return_data_class != Array 
         raise_with_prefix.call("Returned type #{return_data_class} instead of an Array")
       end
@@ -649,9 +649,9 @@ module Query64
 
     def verify_additional_row_filters_method_return(returned_data)
       return_data_class = returned_data.class
-      raise_with_prefix = -> do |message|
+      raise_with_prefix = -> (message) {
         raise Query64Exception.new("Method 'query64_additional_row_filters' from model #{self.to_s} returned an invalid structure. #{message}", 500)
-      end
+      }
       if return_data_class != nil && return_data_class != Array 
         raise_with_prefix.call("Returned type #{return_data_class} instead of an Array")
       end
