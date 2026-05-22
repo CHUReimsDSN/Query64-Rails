@@ -175,8 +175,8 @@ module Query64
         created_by: 'Créé par',
         updated_by: 'Mis à jour par'
       }
-      class_column_labels = generic_labels.merge(class_column_labels)
-      class_column_labels
+      labels_hash = generic_labels.merge(class_column_labels)
+      labels_hash
     end
 
     def query64_get_column_type_by_sql_type(sql_type)
