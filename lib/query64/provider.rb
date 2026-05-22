@@ -317,7 +317,7 @@ module Query64
         }
         paths_to_join = get_join_data_recur(self.resource_class, metadata[:association_name], association_data)
 
-        self.joins_data[meta_data[:association_name]] = {
+        self.joins_data[metadata[:association_name]] = {
           alias_label: paths_to_join.last[:foreign_table_alias],
           paths_to_join: paths_to_join,
           paths_to_join_count: Marshal.load(Marshal.dump(paths_to_join)),
