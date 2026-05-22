@@ -9,6 +9,7 @@ title: Changelog
 __Nouveautés__ :
 
 - Les méthodes `query64_additional_row_filters`, `query64_quick_search_columns`, `query64_column_dictionary` et `query64_column_builder` ont désormais une garde sur la structure renvoyer par ces méthodes, afin d'indiquer des définitions invalides
+- La méthode `query64_column_dictionary` permet désormais de définir un dictionnaire pour les noms des colonnes des relations
 
 __Changements__ :
 

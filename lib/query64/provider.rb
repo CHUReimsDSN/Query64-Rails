@@ -350,7 +350,6 @@ module Query64
       if reflection.nil?
         computed_association_name = resource_class.reflections[association_name]&.options&.dig(:source) || ''
       end
-      reflection = klass.reflect_on_association(computed_association_name)
       if reflection.nil?
         raise Query64Exception.new("Association #{table_name}.#{computed_association_name} cannot be found", 500)
       end
