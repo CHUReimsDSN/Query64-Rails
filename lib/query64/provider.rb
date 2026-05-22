@@ -158,7 +158,7 @@ module Query64
     def sanitize_conditions(aggrid_params)
       filters = aggrid_params[:filterModel] || {}
       additional_filters = aggrid_params[:additionalFilterModel] || {}
-      get_sanitized_filter_by_metata = -> (column_filter_name, filter_params, column_metadata) {
+      get_sanitized_filter_by_metadata = -> (column_filter_name, filter_params, column_metadata) {
         if filter_params[:conditions].nil?
           sanitized_filter_params = {}
           sanitized_filter_params[:operator] = 'AND'
@@ -189,15 +189,15 @@ module Query64
         if column_metadata.nil?
           next
         end
-        self.filters << get_sanitized_filter_by_metata.call(column_filter_name, filter_params, column_metadata)
+        self.filters << get_sanitized_filter_by_metadata.call(column_filter_name, filter_params, column_metadata)
       end
 
-      additional_filters.each do |column_filter_name, filter_params|
+      additional_filters.each do |column_filter_name, filter_params| # TODO
         column_metadata = find_column_metadata(column_filter_name)
         if column_metadata.nil?
           next
         end
-        self.filters_must_apply << get_sanitized_filter_by_metata.call(column_filter_name, filter_params, column_metadata)
+        self.filters_must_apply << get_sanitized_filter_by_metadata.call(column_filter_name, filter_params, column_metadata)
       end
     end
 
@@ -241,7 +241,9 @@ module Query64
       sorts = aggrid_params[:sortModel] || []
       sorts.each do |sort|
         column_meta_data = find_column_metadata_in_select(sort[:colId])
-        next if column_meta_data.nil?
+        if column_meta_data.nil?
+          next 
+        end
         sort[:column_meta_data] = column_meta_data
         if sort[:sort] == 'asc'
           sort[:sort] = 'ASC'
@@ -293,8 +295,9 @@ module Query64
           enabled_for_sub_request: false
         }
       end
+
       self.filters_must_apply.each do |filter|
-        metadata = filter[:column_metadata]
+        metadata = filter[:column_meta_data]
         if metadata[:association_name].nil?
           next
         end
@@ -546,6 +549,7 @@ module Query64
         options = map_model_options[model_class.to_s]
         if options.nil?
           options = Query64.try_model_method_with_args(model_class, :query64_quick_search_columns, self.context)
+          verify_quick_search_column_method_return(options)
           if options.nil?
             options = get_default_quick_search_columns
           end
@@ -585,6 +589,7 @@ module Query64
     def add_additional_row_filters(aggrid_params)
       aggrid_params[:additionalFilterModel] = {}
       entries_filter = Query64.try_model_method_with_args(self.resource_class, :query64_additional_row_filters, self.context)
+      verify_additional_row_filters_method_return(entries_filter)
       if entries_filter.class != Array
         entries_filter = []
       end
@@ -630,6 +635,26 @@ module Query64
 
     def get_default_quick_search_columns
       ['*'].freeze
+    end
+
+    def verify_quick_search_column_method_return(returned_data)
+      return_data_class = returned_data.class
+      raise_with_prefix = -> do |message|
+        raise Query64Exception.new("Method 'query64_quick_search_columns' from model #{self.to_s} returned an invalid structure. #{message}", 500)
+      end
+      if return_data_class != nil && return_data_class != Array 
+        raise_with_prefix.call("Returned type #{return_data_class} instead of an Array")
+      end
+    end
+
+    def verify_additional_row_filters_method_return(returned_data)
+      return_data_class = returned_data.class
+      raise_with_prefix = -> do |message|
+        raise Query64Exception.new("Method 'query64_additional_row_filters' from model #{self.to_s} returned an invalid structure. #{message}", 500)
+      end
+      if return_data_class != nil && return_data_class != Array 
+        raise_with_prefix.call("Returned type #{return_data_class} instead of an Array")
+      end
     end
 
   end
