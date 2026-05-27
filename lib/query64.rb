@@ -17,7 +17,7 @@ module Query64
       if context != nil
         context = context.to_h
       end
-      resource_class.query64_get_builder_metadata(context)
+      resource_class.query64_get_builder_metadata_interop(context)
     end    
   end
 
@@ -54,7 +54,6 @@ module Query64
     end
     resource_class
   end
-
 
   private
   def self.safe_exec

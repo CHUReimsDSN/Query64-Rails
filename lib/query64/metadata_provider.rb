@@ -3,9 +3,19 @@ require 'active_record'
 module Query64
         
   module MetadataProvider
+
+    ALL_COLUMNS_STRING = '*'.freeze
+
     def self.extended(base)
       unless base < ActiveRecord::Base
         raise "#{base} must inherit from ActiveRecord::Base to extend Query64::MetadataProvider"
+      end
+    end
+
+    def query64_get_builder_metadata_interop(context = nil)
+      query64_get_builder_metadata(context).map do |metadata|
+        metadata.delete(:association_class_name)
+        metadata
       end
     end
 
@@ -26,8 +36,8 @@ module Query64
       end
       entries.each_with_index do |entry, policy_index|
         index_base = policy_index * 1000
-        if entry[:columns_to_include].include?('*')
-          entry[:columns_to_include] = ['*']
+        if entry[:columns_to_include].include?(ALL_COLUMNS_STRING)
+          entry[:columns_to_include] = [ALL_COLUMNS_STRING]
         end
         if entry[:columns_to_exclude].nil?
           entry[:columns_to_exclude] = []
@@ -43,7 +53,7 @@ module Query64
         end
         resource_class_columns = resource_class.column_names
 
-        if entry[:columns_to_include].include?('*')
+        if entry[:columns_to_include].include?(ALL_COLUMNS_STRING)
           resource_class_columns.each_with_index do |column_name, column_index|
             existing_column = allowed_columns.find do |allowed_column|
               allowed_column[:raw_field_name] == column_name && allowed_column[:association_name] == entry[:association_name]
@@ -114,20 +124,22 @@ module Query64
         label_name = default_columns_dictionary[key_column.to_sym]
         label_name ||= beautify_name.call(key_column)
         field_type = query64_get_column_type_by_sql_type(value_column.type)
+        field_category = self.primary_key == key_column ? 'primary_key' : nil
         metadata << {
           raw_field_name: key_column,
           field_name: key_column,
           label_name: label_name,
           field_type: field_type,
+          field_category: field_category,
           association_name: nil,
           association_type: nil,
-          association_class_name: nil,
+          association_class_name: nil
         }
       end
 
       association_names_done = []
       self.reflect_on_all_associations.each do |association|
-        if (association_names_done.include? association.name) || association.klass.nil?
+        if (association_names_done.include?(association.name)) || association.klass.nil?
           next
         end
         association_names_done << association.name
@@ -138,15 +150,17 @@ module Query64
           label_name = default_columns_dictionary[relation_key_name.to_sym]
           label_name ||= association_columns_dictionary[key_column]
           label_name ||= "#{beautify_name.call(association.name.to_s)} : #{beautify_name.call(key_column)}"
-          field_type = query64_get_column_type_by_sql_type(value_column.type)        
+          field_type = query64_get_column_type_by_sql_type(value_column.type)    
+          field_category = association_class.primary_key == key_column ? 'primary_key' : nil    
           metadata << { 
             raw_field_name: key_column,
             field_name: query64_serialize_relation_key_column(association, key_column), 
             label_name: label_name,
             field_type: field_type,
+            field_category: field_category,
             association_name: association.name,
             association_type: association.macro,
-            association_class_name: association_class,
+            association_class_name: association_class
           }
         end
       end
