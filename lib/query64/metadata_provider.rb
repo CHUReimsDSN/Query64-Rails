@@ -122,7 +122,7 @@ module Query64
       field_by_category = {}
       default_columns_dictionary = query64_get_column_dictionary_pool(self, context)
 
-      columns.each do |key_column, value_column|
+      self.columns_hash.each do |key_column, value_column|
         label_name = default_columns_dictionary[key_column.to_sym]
         label_name ||= beautify_name.call(key_column)
         field_type = query64_get_column_type_by_sql_type(value_column.type)
