@@ -148,9 +148,9 @@ module Query64
         end
         association_names_done << association.name
         association_columns_dictionary = query64_get_column_dictionary_pool(association_class, context)
-        if association.macro == :belongs_to
-          field_by_category[association.foreign_key.to_sym] = 'foreign_key'
-        end
+        # if association.macro == :belongs_to
+        #   field_by_category[association.foreign_key.to_sym] = 'foreign_key'
+        # end
         association_class.columns_hash.each do |key_column, value_column|
           relation_key_name = query64_serialize_relation_key_column(association, key_column)
           label_name = default_columns_dictionary[relation_key_name.to_sym]
@@ -158,12 +158,12 @@ module Query64
           label_name ||= "#{beautify_name.call(association.name.to_s)} : #{beautify_name.call(key_column)}"
           field_type = query64_get_column_type_by_sql_type(value_column.type)    
           field_name = query64_serialize_relation_key_column(association, key_column)
-          if key_column == association_class.primary_key
-            field_by_category[field_name.to_sym] = 'primary_key'
-          end
-          if association.macro != :belongs_to && association.source_reflection != nil && key_column == association.foreign_key
-            field_by_category[field_name.to_sym] = 'foreign_key'
-          end 
+          # if key_column == association_class.primary_key
+          #   field_by_category[field_name.to_sym] = 'primary_key'
+          # end
+          # if association.macro != :belongs_to && association.source_reflection != nil && key_column == association.foreign_key
+          #   field_by_category[field_name.to_sym] = 'foreign_key'
+          # end 
           metadata << { 
             raw_field_name: key_column,
             field_name: field_name, 
@@ -175,11 +175,11 @@ module Query64
           }
         end
       end
+      metadata = metadata.map do |metadat|
+        metadat[:field_category] = field_by_category.fetch(metadat[:field_name], nil)
+        metadat
+      end
       metadata
-      # metadata.map do |metadat|
-      #   metadat[:field_category] = field_by_category.fetch(metadat[:field_name], nil)
-      #   metadat
-      # end
     end
 
     def query64_serialize_relation_key_column(association, key_column)
