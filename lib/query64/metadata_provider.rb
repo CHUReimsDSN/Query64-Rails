@@ -161,9 +161,9 @@ module Query64
           # if key_column == association_class.primary_key
           #   field_by_category[field_name.to_sym] = 'primary_key'
           # end
-          # if association.macro != :belongs_to && association.source_reflection != nil && key_column == association.foreign_key
-          #   field_by_category[field_name.to_sym] = 'foreign_key'
-          # end 
+          if association.macro != :belongs_to && association.source_reflection != nil && key_column == association.foreign_key
+            field_by_category[field_name.to_sym] = 'foreign_key'
+          end 
           metadata << { 
             raw_field_name: key_column,
             field_name: field_name, 
