@@ -6,7 +6,7 @@ title: Changelog
 
 ### 2.1.0
 
-- Les données des colonnes comportent désormais les informations de clé primaire ou clé étrangère (ou rien)
+- Les données des colonnes comportent désormais les informations de clé primaire et étrangère
 
 ---
 # 2.0.0
