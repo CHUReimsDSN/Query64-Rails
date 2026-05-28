@@ -175,10 +175,11 @@ module Query64
           }
         end
       end
-      metadata.map do |metadat|
-        metadat[:field_category] = field_by_category.fetch(metadat[:field_name], nil)
-        metadat
-      end
+      metadata
+      # metadata.map do |metadat|
+      #   metadat[:field_category] = field_by_category.fetch(metadat[:field_name], nil)
+      #   metadat
+      # end
     end
 
     def query64_serialize_relation_key_column(association, key_column)
