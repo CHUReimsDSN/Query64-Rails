@@ -4,6 +4,11 @@ title: Changelog
 
 # Changelog
 
+### 2.1.0
+
+- Les données des colonnes comportent désormais les informations de clé primaire et étrangère
+
+---
 # 2.0.0
 
 __Nouveautés__ :
@@ -18,7 +23,7 @@ __Changements__ :
 
 __Corrections__ :
 
-- Correction des données de jointures
+- Correction des données de jointure
 
 ---
 ### 1.5.9

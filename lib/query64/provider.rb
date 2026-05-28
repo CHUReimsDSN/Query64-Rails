@@ -101,7 +101,7 @@ module Query64
       association_done_names = {}
       self.columns_to_select_meta_data.each do |column_metadata|
         association_name = column_metadata[:association_name]
-        if !association_name.nil? && association_done_names[association_name] != true
+        if association_name != nil && association_done_names[association_name] != true
           find_entries = []
           reflection = self.resource_class.reflect_on_association(association_name)
           if reflection.nil?
@@ -142,7 +142,7 @@ module Query64
                 missing_find[:association_name] == find_entry[:association_name_to_find] && 
                 missing_find[:raw_field_name] == find_entry[:raw_field_name_to_find]
               end
-              if !missing_foreing_key.nil?
+              if missing_foreing_key != nil
                 self.columns_to_select_meta_data << missing_foreing_key
               end
             end
@@ -193,7 +193,7 @@ module Query64
         self.filters << get_sanitized_filter_by_metadata.call(column_filter_name, filter_params, column_metadata)
       end
 
-      additional_filters.each do |column_filter_name, filter_params| # TODO
+      additional_filters.each do |column_filter_name, filter_params|
         column_metadata = find_column_metadata(column_filter_name)
         if column_metadata.nil?
           next
@@ -222,7 +222,9 @@ module Query64
       groups_keys = aggrid_params[:groupKeys] || []
       groups_keys.each_with_index do |group_key, index_group_key|
         column_metadata = find_column_metadata_in_select(self.groups[index_group_key][:id])
-        next if column_metadata.nil?
+        if column_metadata.nil?
+          next
+        end
         self.filters << {
           conditions: [
             {
@@ -341,15 +343,9 @@ module Query64
         table_alias = "#{table_name}#{suffix_target_is}"
       end
       reflection = klass.reflect_on_association(association_name)
-      if reflection.nil?
-        computed_association_name = ActiveSupport::Inflector.singularize(association_name)
-      end
-      if reflection.nil?
-        computed_association_name = ActiveSupport::Inflector.plurialize(association_name)
-      end
-      if reflection.nil?
-        computed_association_name = resource_class.reflections[association_name]&.options&.dig(:source) || ''
-      end
+      reflection ||= ActiveSupport::Inflector.singularize(association_name)
+      reflection ||= ActiveSupport::Inflector.plurialize(association_name)
+      reflection ||= resource_class.reflections[association_name]&.options&.dig(:source)
       if reflection.nil?
         raise Query64Exception.new("Association #{table_name}.#{computed_association_name} cannot be found", 500)
       end
@@ -472,10 +468,10 @@ module Query64
       group = self.groups[group_index]
 
       column_meta_data = group[:column_meta_data]
-      if !column_meta_data[:association_class_name].nil?
+      if column_meta_data[:association_class_name] != nil
         resource_table_name = column_meta_data[:association_class_name].table_name
         join_data = self.joins_data[column_meta_data[:association_name]]
-        if !join_data.nil?
+        if join_data != nil
           resource_table_alias = join_data[:alias_label]
         else
           raise Query64Exception.new("Join data not found", 500)
