@@ -201,6 +201,7 @@ module Query64
 
             when 'in'
                 if condition[:filters].empty?
+                  fragments << "1 = 0"
                   next
                 end
                 sub_fragment_null = ""
@@ -225,6 +226,7 @@ module Query64
 
             when 'notIn'
                 if condition[:filters].empty?
+                  fragments << "1 = 1"
                   next
                 end
                 sub_fragment_null = ""
@@ -249,6 +251,7 @@ module Query64
 
             when 'set'
                 if condition[:values].empty?
+                  fragments << "1 = 0"
                   next
                 end
                 sub_fragment_null = ""

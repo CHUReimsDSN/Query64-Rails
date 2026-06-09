@@ -4,6 +4,11 @@ title: Changelog
 
 # Changelog
 
+### 2.1.1
+
+- Correction des tableaux vides pour les filtres de type `in` et `notIn` et `set`
+
+---
 ### 2.1.0
 
 - Les données des colonnes comportent désormais les informations de clé primaire et étrangère
