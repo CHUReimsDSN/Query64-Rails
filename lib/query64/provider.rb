@@ -68,7 +68,7 @@ module Query64
       self.limit = limit
       offset = aggrid_params[:startRow].to_i
       if offset < 0
-        limit = 0 
+        offset = 0 
       end
       self.offset = offset
     end
