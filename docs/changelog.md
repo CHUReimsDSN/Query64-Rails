@@ -4,12 +4,16 @@ title: Changelog
 
 # Changelog
 
+### 2.2.1
+
+- Correction de la méthode `Query64.get_count`
+
+---
 ### 2.2.0
 
 - Ajout d'une méthode `Query64.get_count`
 
 ---
-
 ### 2.1.1
 
 - Correction des tableaux vides pour les filtres de type `in` et `notIn` et `set`
