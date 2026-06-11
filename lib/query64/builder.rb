@@ -642,6 +642,19 @@ module Query64
       { items: items, row_count: length }
     end
 
+    def get_count
+      length_sql = """
+        #{self.sql_string_hash[:select_clause_count]}
+        #{self.sql_string_hash[:select_count]}
+        #{self.sql_string_hash[:from_count]}
+        #{self.sql_string_hash[:joins_count]}
+        #{self.sql_string_hash[:where_count]}
+        #{self.sql_string_hash[:additional_clause]}
+      """
+      length = self.provider.resource_class.connection.execute(length_sql).to_a.first["count"]
+      length
+    end
+
     private
     def initialize(query64_params)
       self.sql_string_hash = {

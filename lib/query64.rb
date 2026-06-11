@@ -28,6 +28,13 @@ module Query64
     end
   end
 
+  def self.get_count(params)
+    safe_exec do
+      ensure_params_and_resource_are_valid(params)
+      Builder.get_count(params[:query64Params])
+    end
+  end
+
   def self.export(params, format = :csv)
     safe_exec do
       ensure_params_and_resource_are_valid(params)
