@@ -16,6 +16,17 @@ module Query64
       instance.get_results
     end
 
+    def self.get_count(params)
+      instance = self.new(params)
+      instance.build_select_sql
+      instance.build_joins_sql
+      instance.build_where_filters_sql
+      instance.build_sort_sql
+      instance.build_limit_and_offset_sql
+      instance.build_groups_sql
+      instance.get_count
+    end
+
     def build_select_sql
       column_select_array = []
       column_select_sub_request_array = []
@@ -576,15 +587,7 @@ module Query64
       length = -1
 
       if self.shall_return_count
-        length_sql = """
-          #{self.sql_string_hash[:select_clause_count]}
-          #{self.sql_string_hash[:select_count]}
-          #{self.sql_string_hash[:from_count]}
-          #{self.sql_string_hash[:joins_count]}
-          #{self.sql_string_hash[:where_count]}
-          #{self.sql_string_hash[:additional_clause]}
-        """
-        length = self.provider.resource_class.connection.execute(length_sql).to_a.first["count"]
+        length = self.get_count
       end
 
       if self.provider.group_mode_data
