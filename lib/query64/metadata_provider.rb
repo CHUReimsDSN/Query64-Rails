@@ -188,7 +188,8 @@ module Query64
       "#{association.name}.#{key_column}"
     end
 
-    def query64_deserialize_relation_key_column(column_string)
+    def query64_deserialize_relation_key_column(column_sym)
+      column_string = column_sym.to_s
       {
         raw_field_name: column_string.include?('.') ? column_string.split('.').second : column_string,
         association_name: column_string.include?('.') ? column_string.split('.').first.to_sym : nil,
