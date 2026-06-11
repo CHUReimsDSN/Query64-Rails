@@ -12,6 +12,7 @@ module Query64
 
   def self.get_metadata(params)
     safe_exec do
+      params = symbolize_params(params)
       resource_class = ensure_params_and_resource_are_valid(params)
       context = params[:query64Params][:context]
       if context != nil
@@ -23,6 +24,7 @@ module Query64
 
   def self.get_rows(params)
     safe_exec do
+      params = symbolize_params(params)
       ensure_params_and_resource_are_valid(params)
       Builder.get_results(params[:query64Params])
     end
@@ -30,6 +32,7 @@ module Query64
 
   def self.get_count(params)
     safe_exec do
+      params = symbolize_params(params)
       ensure_params_and_resource_are_valid(params)
       Builder.get_count(params[:query64Params])
     end
@@ -37,6 +40,7 @@ module Query64
 
   def self.export(params, format = :csv)
     safe_exec do
+      params = symbolize_params(params)
       ensure_params_and_resource_are_valid(params)
       query64_params = params[:query64Params]
       query64_params[:export_mode] = true
@@ -84,6 +88,10 @@ module Query64
       end
     end
     nil
+  end
+
+  def self.symbolize_params(params)
+    params.deep_symbolize_keys
   end
 
   private_constant :Builder
