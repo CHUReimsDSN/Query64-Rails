@@ -4,6 +4,11 @@ title: Changelog
 
 # Changelog
 
+### 2.2.2
+
+- Correction d'un problème avec les relations polymorphiques
+
+---
 ### 2.2.1
 
 - Correction de la méthode `Query64.get_count`

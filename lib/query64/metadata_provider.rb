@@ -143,6 +143,9 @@ module Query64
 
       association_names_done = []
       self.reflect_on_all_associations.each do |association|
+        if association.polymorphic?
+          next
+        end
         association_class = association.klass
         if (association_names_done.include?(association.name)) || association_class.nil?
           next
