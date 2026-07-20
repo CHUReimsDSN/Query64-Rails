@@ -157,7 +157,7 @@ module Query64
     end
 
     def sanitize_conditions(aggrid_params)
-      filters = aggrid_params[:filterModel] || {}
+      filters_model = aggrid_params[:filterModel] || {}
       additional_filters = aggrid_params[:additionalFilterModel] || {}
       get_sanitized_filter_by_metadata = -> (column_filter_name, filter_params, column_metadata) {
         if filter_params[:conditions].nil?
@@ -185,7 +185,7 @@ module Query64
         sanitized_filter_params
       }
 
-      filters.each do |column_filter_name, filter_params|
+      filters_model.each do |column_filter_name, filter_params|
         column_metadata = find_column_metadata_in_select(column_filter_name)
         if column_metadata.nil?
           next
