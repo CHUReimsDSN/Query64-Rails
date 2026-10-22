@@ -531,7 +531,7 @@ module Query64
           next
         end
         self.joins_data[association_name][:enabled_for_sub_request] = true
-        field_name = sort[:column_metadata][:raw_field_name]
+        field_name = sort[:column_meta_data][:raw_field_name]
         alias_sort = "#{joins_data[association_name][:alias_label]}__#{field_name}"
         self.joins_data[association_name][:sorts][field_name] =  alias_sort
       end
