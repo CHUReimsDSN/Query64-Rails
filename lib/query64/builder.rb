@@ -62,6 +62,7 @@ module Query64
               column_select_on_sub_request_array << sql_column_on
               alias_sort = join_data[:sorts][column_meta_data[:raw_field_name]]
               column_select_sub_request_array << "#{sql_column_on} AS #{alias_sort}"
+              column_select_on_array << "#{self.provider.alias_start_table}.#{alias_sort}"
             else
               column_select_on_array << sql_column_on
             end
