@@ -57,13 +57,15 @@ module Query64
           end
 
           if is_column_sorted
-            alias_sort = join_data[:sorts][column_meta_data[:raw_field_name]]
-            sql_column_on = "#{join_data[:alias_label]}.#{column_meta_data[:raw_field_name]} AS #{alias_sort}"
+            sql_column_on = "#{join_data[:alias_label]}.#{column_meta_data[:raw_field_name]}"
             if join_data[:enabled_for_sub_request]
               column_select_on_sub_request_array << sql_column_on
+              alias_sort = join_data[:sorts][column_meta_data[:raw_field_name]]
+              column_select_sub_request_array << "#{sql_column_on} AS #{alias_sort}"
             else
               column_select_on_array << sql_column_on
             end
+
           end
           
           if select_association_name_already_done.include?(column_meta_data[:association_name])
