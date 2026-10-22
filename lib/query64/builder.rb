@@ -503,6 +503,7 @@ module Query64
           column_is_sorted = !self.provider.sorts.find { |sort| sort[:column_meta_data][:field_name] == column_meta_data[:field_name]}.nil?
           if column_is_sorted
             group_columns_sub_request << "#{join_data[:alias_label]}.#{column_meta_data[:raw_field_name]}"
+            group_columns << "#{self.provider.alias_start_table}.#{join_data[:joins][column_meta_data[:raw_field_name]]}"
           end
 
           if select_association_name_already_done.include?(column_meta_data[:association_name])
