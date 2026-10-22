@@ -57,11 +57,12 @@ module Query64
           end
 
           if is_column_sorted
-            sql_column_on = "#{join_data[:alias_label]}.#{column_meta_data[:raw_field_name]}"
+            alias_sort = join_data[:sorts][column_meta_data[:raw_field_name]]
+            sql_column_on = "#{join_data[:alias_label]}.#{column_meta_data[:raw_field_name]} AS #{alias_sort}"
             if join_data[:enabled_for_sub_request]
               column_select_on_sub_request_array << sql_column_on
             else
-              column_select_on_array << "#{sql_column_on} AS #{join_data[:sorts][column_meta_data[:raw_field_name]]}"
+              column_select_on_array << sql_column_on
             end
           end
           
@@ -543,7 +544,7 @@ module Query64
           end
           table_alias_sub_request = join_data[:alias_label]
           column_alias_sub_request = join_data[:sorts][column_name]
-          sort_clauses_sub_request_array << "#{table_alias_sub_request}.#{column_name} #{sort[:sort]}"
+          sort_clauses_sub_request_array << "#{column_alias_sub_request} #{sort[:sort]}"
           sort_clauses_array << "#{start_table_alias}.#{column_alias_sub_request} #{sort[:sort]}"
         else
           if self.provider.sub_request_mode
