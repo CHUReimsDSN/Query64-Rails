@@ -61,7 +61,7 @@ module Query64
             if join_data[:enabled_for_sub_request]
               column_select_on_sub_request_array << sql_column_on
             else
-              column_select_on_array << join_data[:sorts][column_meta_data[:raw_field_name]]
+              column_select_on_array << "#{sql_column_on} AS #{join_data[:sorts][column_meta_data[:raw_field_name]]}"
             end
           end
           
@@ -531,6 +531,7 @@ module Query64
     def build_sort_sql
       sort_clauses_array = []
       sort_clauses_sub_request_array = []
+      start_table_alias = self.provider.alias_start_table
       self.provider.sorts.each do |sort|
         column_meta_data = sort[:column_meta_data]
         column_name = column_meta_data[:raw_field_name]
@@ -543,14 +544,13 @@ module Query64
           table_alias_sub_request = join_data[:alias_label]
           column_alias_sub_request = join_data[:sorts][column_name]
           sort_clauses_sub_request_array << "#{table_alias_sub_request}.#{column_name} #{sort[:sort]}"
-          sort_clauses_array << "#{self.provider.alias_start_table}.#{column_alias_sub_request} #{sort[:sort]}"
+          sort_clauses_array << "#{start_table_alias}.#{column_alias_sub_request} #{sort[:sort]}"
         else
           if self.provider.sub_request_mode
             table_alias_sub_request = self.provider.alias_start_table_sub_request
             sort_clauses_sub_request_array << "#{table_alias_sub_request}.#{column_name} #{sort[:sort]}"
           end
-          table_alias = self.provider.alias_start_table
-          sort_clauses_array << "#{table_alias}.#{column_name} #{sort[:sort]}"
+          sort_clauses_array << "#{start_table_alias}.#{column_name} #{sort[:sort]}"
         end
         
       end
