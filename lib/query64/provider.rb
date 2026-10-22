@@ -289,6 +289,7 @@ module Query64
 
         self.joins_data[metadata[:association_name]] = {
           alias_label: paths_to_join.last[:foreign_table_alias],
+          sorts: {},
           paths_to_join: paths_to_join,
           paths_to_join_count: Marshal.load(Marshal.dump(paths_to_join)),
           paths_to_join_group: Marshal.load(Marshal.dump(paths_to_join)),
@@ -321,6 +322,7 @@ module Query64
 
         self.joins_data[metadata[:association_name]] = {
           alias_label: paths_to_join.last[:foreign_table_alias],
+          sorts: {},
           paths_to_join: paths_to_join,
           paths_to_join_count: Marshal.load(Marshal.dump(paths_to_join)),
           paths_to_join_group: Marshal.load(Marshal.dump(paths_to_join)),
@@ -529,6 +531,9 @@ module Query64
           next
         end
         self.joins_data[association_name][:enabled_for_sub_request] = true
+        field_name = sort[:column_metadata][:raw_field_name]
+        alias_sort = "#{joins_data[association_name][:alias_label]}__#{field_name}"
+        self.joins_data[association_name][:sorts][field_name] =  alias_sort
       end
       if !self.joins_data.empty? && self.group_mode_data.nil?
         self.sub_request_mode = true
