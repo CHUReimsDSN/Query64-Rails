@@ -60,9 +60,13 @@ module Query64
             sql_column_on = "#{join_data[:alias_label]}.#{column_meta_data[:raw_field_name]}"
             if join_data[:enabled_for_sub_request]
               column_select_on_sub_request_array << sql_column_on
+              alias_sort = join_data[:sorts][column_meta_data[:raw_field_name]]
+              column_select_sub_request_array << "#{sql_column_on} AS #{alias_sort}"
+              column_select_on_array << "#{self.provider.alias_start_table}.#{alias_sort}"
             else
               column_select_on_array << sql_column_on
             end
+
           end
           
           if select_association_name_already_done.include?(column_meta_data[:association_name])
@@ -499,6 +503,7 @@ module Query64
           column_is_sorted = !self.provider.sorts.find { |sort| sort[:column_meta_data][:field_name] == column_meta_data[:field_name]}.nil?
           if column_is_sorted
             group_columns_sub_request << "#{join_data[:alias_label]}.#{column_meta_data[:raw_field_name]}"
+            group_columns << "#{self.provider.alias_start_table}.#{join_data[:sorts][column_meta_data[:raw_field_name]]}"
           end
 
           if select_association_name_already_done.include?(column_meta_data[:association_name])
@@ -514,7 +519,6 @@ module Query64
           end
           group_columns << "#{self.provider.alias_start_table}.#{column_meta_data[:raw_field_name]}"
         end
-
       end
       sql_group_columns = group_columns.join(', ')
       sql_group_columns_sub_request = group_columns_sub_request.join(', ')
@@ -531,6 +535,7 @@ module Query64
     def build_sort_sql
       sort_clauses_array = []
       sort_clauses_sub_request_array = []
+      start_table_alias = self.provider.alias_start_table
       self.provider.sorts.each do |sort|
         column_meta_data = sort[:column_meta_data]
         column_name = column_meta_data[:raw_field_name]
@@ -541,17 +546,15 @@ module Query64
             next
           end
           table_alias_sub_request = join_data[:alias_label]
-          sort_clauses_sub_request_array << "#{table_alias_sub_request}.#{column_name} #{sort[:sort]}"
-          if !join_data[:enabled_for_sub_request]
-            sort_clauses_array << "#{table_alias_sub_request}.#{column_name} #{sort[:sort]}" # ???
-          end
+          column_alias_sub_request = join_data[:sorts][column_name]
+          sort_clauses_sub_request_array << "#{column_alias_sub_request} #{sort[:sort]}"
+          sort_clauses_array << "#{start_table_alias}.#{column_alias_sub_request} #{sort[:sort]}"
         else
           if self.provider.sub_request_mode
             table_alias_sub_request = self.provider.alias_start_table_sub_request
             sort_clauses_sub_request_array << "#{table_alias_sub_request}.#{column_name} #{sort[:sort]}"
           end
-          table_alias = self.provider.alias_start_table
-          sort_clauses_array << "#{table_alias}.#{column_name} #{sort[:sort]}"
+          sort_clauses_array << "#{start_table_alias}.#{column_name} #{sort[:sort]}"
         end
         
       end
