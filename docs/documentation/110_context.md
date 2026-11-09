@@ -33,6 +33,6 @@ Le context provient de l'interface, il est donc nécessaire de passer par une é
 :::
 
 ::: warning Important 
-Consulter la [Définition API](/api-definition/models.md) pour connaitre quelles méthodes reçoivent le contexte.
+Consulter la [Définition API](/documentation/999_definition.md) pour connaitre quelles méthodes reçoivent le contexte.
 :::
 

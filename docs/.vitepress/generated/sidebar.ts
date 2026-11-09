@@ -70,7 +70,7 @@ export const sidebar = [
     "text": "Exemples",
     "items": [
       {
-        "text": "Utilisation simple dans un controller",
+        "text": "Controller",
         "link": "/documentation/exemples/controller.md",
         "active": false,
         "collapsed": false

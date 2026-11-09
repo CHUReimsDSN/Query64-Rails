@@ -24,5 +24,5 @@ end
 ```
 
 ::: warning Important 
-Consulter la [Définition API](/api-definition/models.md#query64_quick_search_columns).
+Consulter la [Définition API](/documentation/999_definition.md#query64_quick_search_columns).
 :::
