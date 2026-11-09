@@ -26,3 +26,6 @@ gem 'query64', git: 'https://github.com/CHUReimsDSN/Query64-Rails.git', branch: 
 "activerecord", ">= 6.0"
 "csv"
 ```
+
+
+

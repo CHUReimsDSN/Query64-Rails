@@ -8,31 +8,38 @@ title: Changelog
 
 - Correction d'un problème sur les tris des relations
 
+<br />
+
 ### 2.2.2
 
 - Correction d'un problème avec les relations polymorphiques
 
----
+<br />
+
 ### 2.2.1
 
 - Correction de la méthode `Query64.get_count`
 
----
+<br />
+
 ### 2.2.0
 
 - Ajout d'une méthode `Query64.get_count`
 
----
+<br />
+
 ### 2.1.1
 
 - Correction des tableaux vides pour les filtres de type `in` et `notIn` et `set`
 
----
+<br />
+
 ### 2.1.0
 
 - Les données des colonnes comportent désormais les informations de clé primaire et étrangère
 
----
+<br />
+
 # 2.0.0
 
 __Nouveautés__ :
@@ -49,53 +56,64 @@ __Corrections__ :
 
 - Correction des données de jointure
 
----
+<br />
+
 ### 1.5.9
 
 - Correction d'un crash concernant les filtres déclarés dans la méthode `query64_additional_row_filters`
 
----
+<br />
+
 ### 1.5.8
 
 - Les filtres de `query64_additional_row_filters` sont désormais toujours appliqués même si les colonnes ne sont pas démandées coté client
 
----
+<br />
+
 ### 1.5.7
 
 - Correction des filtres `equals` sur les champs de type `date`et `datetime`
 
----
+<br />
+
 ### 1.5.6
 
 - Prise en compte des types `date` pour PostgreSQL
 
----
+<br />
+
 ### 1.5.5
 
 - Ajout du `notIn` pour les filtres de `query64_additional_row_filters`
 
----
+<br />
+
 ### 1.5.4
 
 - Correction des dictionnaires sur les champs d'association
 
----
+<br />
+
 ### 1.5.3
 
 - Ajout de la recherche rapide
 
----
+<br />
+
 ### 1.5.2
 
 - Correction des filtres vides pour l'opérateur `equals` pour les `string` et les `date`
 
----
+<br />
+
 ### 1.5.1
 
 - Gestion complémentaire des `in` et des `set` pour les filtres
 
----
+<br />
+
 ### 1.5.0
 
 - Nouvelle doc
 
+<br />

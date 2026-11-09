@@ -1,47 +1,47 @@
-import { defineConfig } from 'vitepress'
-import { sidebar } from './generated/sidebar'
-import { version } from './generated/version'
+import { defineConfig, mergeConfig, UserConfig } from "vitepress";
+import { sidebar } from "./generated/sidebar.ts";
+import { version } from "./generated/version.ts";
+import { vitepressBigBangConfig, frenchTranslate } from "vitepress-bigbang";
+import {
+  groupIconMdPlugin,
+  groupIconVitePlugin,
+} from "vitepress-plugin-group-icons";
 
 // https://vitepress.dev/reference/site-config
-export default defineConfig({
-  title: "Query64 - Rails",
-  description: "Query64 for Rails",
-  base: '/Query64-Rails/',
-  themeConfig: {
-    nav: [
-      { text: 'Documentation', link: '/documentation/000_index' },
-      { text: 'Définition API', link: '/api-definition/models' },
-      { text: version, link: 'changelog' },
-      { text: 'Query64 - Vue', link: 'https://chureimsdsn.github.io/Query64-Vue/' }
-    ],
-
-    sidebar,
-    outlineTitle: 'Sur cette page',
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/CHUReimsDSN/Query64-Rails' }
-    ],
-    docFooter: {
-      prev: false,
-      next: false
+export default defineConfig(
+  mergeConfig(vitepressBigBangConfig as UserConfig, {
+    title: "Query64",
+    description: "Query64 for Rails",
+    base: "/Query64-Rails/",
+    themeConfig: {
+      logo: "/logo.svg",
+      nav: [
+        { text: version, link: "changelog" },
+        {
+          text: "Version Vue",
+          link: "https://chureimsdsn.github.io/Query64-Vue/",
+        },
+      ],
+      mermaid: {},
+      MermaidPlugin: {
+        class: "mermaid mermaid-doc",
+      },
+      sidebar,
+      socialLinks: [
+        {
+          icon: "github",
+          link: "https://github.com/CHUReimsDSN/Query64-Rails",
+        },
+      ],
+      ...frenchTranslate,
     },
-    search: {
-      provider: 'local',
-      options: {
-        translations: {
-          button: {
-            buttonText: 'Recherche'
-          },
-          modal: {
-            footer: {
-              navigateText: 'Naviguer',
-              selectText: 'Sélectionner',
-              closeText: 'Fermer',
-            },
-            noResultsText: 'Aucun résultat pour '
-          },
-          
-        }
-      }
-    }
-  },
-})
+    markdown: {
+      config(md) {
+        md.use(groupIconMdPlugin);
+      },
+    },
+    vite: {
+      plugins: [groupIconVitePlugin()],
+    },
+  }),
+);

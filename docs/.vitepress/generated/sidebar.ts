@@ -1,74 +1,82 @@
-export const sidebar = {
-  "/documentation/": [
-    {
-      "text": "Documentation",
-      "items": [
-        {
-          "text": "Installation",
-          "link": "/documentation/000_index.md",
-          "items": []
-        },
-        {
-          "text": "Démarage rapide",
-          "link": "/documentation/040_quick_start.md",
-          "items": []
-        },
-        {
-          "text": "Définition d'un formulaire",
-          "link": "/documentation/050_form_def.md",
-          "items": []
-        },
-        {
-          "text": "Associations",
-          "link": "/documentation/060_associations.md",
-          "items": []
-        },
-        {
-          "text": "Types supplémentaires",
-          "link": "/documentation/066_extra_types.md",
-          "items": []
-        },
-        {
-          "text": "Cycle de vie",
-          "link": "/documentation/067_lifecycle.md",
-          "items": []
-        },
-        {
-          "text": "Validations",
-          "link": "/documentation/068_validations.md",
-          "items": []
-        },
-        {
-          "text": "Interopérabilité",
-          "link": "/documentation/070_interop.md",
-          "items": []
-        },
-        {
-          "text": "Contexte",
-          "link": "/documentation/080_context.md",
-          "items": []
-        },
-        {
-          "text": "Définition",
-          "link": "/documentation/090_definitions.md",
-          "items": []
-        },
-        {
-          "text": "Contribution",
-          "link": "/documentation/998_contribute.md",
-          "items": []
-        },
-        {
-          "text": "TODO",
-          "link": "/documentation/999_todo.md",
-          "items": []
-        },
-        {
-          "text": "Exemples",
-          "items": []
-        }
-      ],
-      "collapsed": true
-    }
-  ]
-};
+
+export const sidebar = [
+  {
+    "text": "Installation",
+    "link": "/documentation/000_index.md",
+    "active": false,
+    "collapsed": false
+  },
+  {
+    "text": "Démarage rapide",
+    "link": "/documentation/040_quick_start.md",
+    "active": false,
+    "collapsed": false
+  },
+  {
+    "text": "Définitions des colonnes",
+    "link": "/documentation/050_column_def.md",
+    "active": false,
+    "collapsed": false
+  },
+  {
+    "text": "Définitions des dictionnaires",
+    "link": "/documentation/060_dictionary.md",
+    "active": false,
+    "collapsed": false
+  },
+  {
+    "text": "Définitions des filtres",
+    "link": "/documentation/070_filter.md",
+    "active": false,
+    "collapsed": false
+  },
+  {
+    "text": "Spécificités",
+    "link": "/documentation/080_specific.md",
+    "active": false,
+    "collapsed": false
+  },
+  {
+    "text": "Recherche rapide",
+    "link": "/documentation/081_quick_search.md",
+    "active": false,
+    "collapsed": false
+  },
+  {
+    "text": "Export",
+    "link": "/documentation/090_export.md",
+    "active": false,
+    "collapsed": false
+  },
+  {
+    "text": "Interopérabilité",
+    "link": "/documentation/091_interop.md",
+    "active": false,
+    "collapsed": false
+  },
+  {
+    "text": "Contexte",
+    "link": "/documentation/110_context.md",
+    "active": false,
+    "collapsed": false
+  },
+  {
+    "text": "Définition API",
+    "link": "/documentation/999_definition.md",
+    "active": false,
+    "collapsed": false
+  },
+  {
+    "text": "Exemples",
+    "items": [
+      {
+        "text": "Utilisation simple dans un controller",
+        "link": "/documentation/exemples/controller.md",
+        "active": false,
+        "collapsed": false
+      }
+    ],
+    "active": false,
+    "collapsed": false
+  }
+];
