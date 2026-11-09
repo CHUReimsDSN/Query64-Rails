@@ -1,8 +1,8 @@
 ---
-title: Utilisation simple dans un controller
+title: Controller
 ---
 
-# Utilisation simple dans un controller  
+# Utilisation simple dans un controller
 
 
 ```ruby
