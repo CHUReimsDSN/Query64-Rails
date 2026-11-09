@@ -4,6 +4,10 @@ title: Changelog
 
 # Changelog
 
+### 2.2.3
+
+- Correction d'un problème sur les tris des relations
+
 ### 2.2.2
 
 - Correction d'un problème avec les relations polymorphiques

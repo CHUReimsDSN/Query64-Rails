@@ -519,7 +519,6 @@ module Query64
           end
           group_columns << "#{self.provider.alias_start_table}.#{column_meta_data[:raw_field_name]}"
         end
-
       end
       sql_group_columns = group_columns.join(', ')
       sql_group_columns_sub_request = group_columns_sub_request.join(', ')
