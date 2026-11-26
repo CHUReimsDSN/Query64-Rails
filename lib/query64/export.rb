@@ -3,7 +3,7 @@ require 'csv'
 module Query64
   class Export
     
-    def self.get_data(data_rows, query64_params, opt = { format: :raw })
+    def self.get_data(data_rows, query64_params, resource_class, opt)
       if data_rows.count == 0
         return data_rows
       end
@@ -26,6 +26,7 @@ module Query64
           end
 
           csv_content = CSV.generate(headers: true, col_sep: ';') do |csv|
+            # TODO use_header_dictionary
             header_row = data_rows.first.keys.filter do |key|
               json_key_association.exclude?(key)
             end
@@ -52,7 +53,7 @@ module Query64
                   row << entry[1] || ""
                 end
               end
-                       
+
               csv << row
             end
           end
