@@ -12,6 +12,15 @@ module Query64
         when :csv
           json_key_column = {}
           json_key_association = Set.new
+          column_metadata = resource_class.query64_get_all_metadata
+          get_label_by_raw_name = -> (raw_name) { 
+            metadata = column_metadata.find do |meta|
+              meta[:raw_field_name] == raw_name
+            end
+            if metadata != nil
+              metadata[:label_name]
+            end
+          }
           columns_to_display = query64_params[:columnsToDisplay] || []
           columns_to_display.each do |column_to_display|
             if column_to_display.exclude?('.')
@@ -26,13 +35,19 @@ module Query64
           end
 
           csv_content = CSV.generate(headers: true, col_sep: ';') do |csv|
-            # TODO use_header_dictionary
-            header_row = data_rows.first.keys.filter do |key|
-              json_key_association.exclude?(key)
-            end
-            json_key_column.entries.each do |entry|
-              entry[1].each do |json_col_name|
-                header_row << "#{entry[0]} : #{json_col_name}"
+            header_row = []
+            data_rows.first.keys.each do |key|
+              if json_key_association.exclude?(key)
+                header_row << key
+              else
+                json_assoc = json_key_association.find do |entry_set|
+                  entry_set == entry[0]
+                end
+                if json_assoc
+                  json_key_column[json_assoc.to_sym].each do |json_col_name|
+                    header_row << "#{entry[0]} : #{json_col_name}"
+                  end
+                end
               end
             end
             csv << header_row
