@@ -55,9 +55,9 @@ module Query64
                 end
               end
             end
-            csv << header_row
 
             # Rows
+            rows = []
             data_rows.each do |data_row|
               row = []
               data_row.each do |entry|
@@ -75,13 +75,15 @@ module Query64
                 end
               end
 
-              csv << row
+              rows << row
             end
 
             # Format everything by opt
             header_row.each do |header_entry|
               if query64_params[:columnsToDisplay].exclude?(header_entry)
-                csv.delete(header_entry)
+                index_to_remove = header_row.index(header_entry)
+                header_row.delete_at(index_to_remove)
+                rows.delete_at(index_to_remove)
                 next
               end
               metadata = column_metadata.find do |meta|
@@ -97,7 +99,11 @@ module Query64
               if opt[:use_dictionary]
                 header_entry = metadata[:label_name]
               end
+            end
 
+            csv << header_row
+            rows.each do |row|
+              csv << row
             end
 
           end
