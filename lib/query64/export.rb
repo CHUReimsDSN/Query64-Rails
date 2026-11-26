@@ -83,8 +83,9 @@ module Query64
               if query64_params[:columnsToDisplay].exclude?(header_entry)
                 index_to_remove = header_row.index(header_entry)
                 header_row.delete_at(index_to_remove)
-                rows.delete_at(index_to_remove)
-                next
+                rows.each do |row|
+                  row.delete_at(index_to_remove)
+                end
               end
               metadata = column_metadata.find do |meta|
                 meta[:raw_field_name] == header_entry
