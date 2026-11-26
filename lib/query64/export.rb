@@ -8,19 +8,22 @@ module Query64
         return data_rows
       end
 
+      opt[:format] ||= :csv
+      opt[:use_dictionary] ||= true
+
+      formater_by_type = {
+        date: opt[:format_date],
+        datetime: opt[:format_datetime],
+        boolean: opt[:format_boolean],
+        string: opt[:format_string],
+        number: opt[:format_number],
+      }
+
       case opt[:format]
         when :csv
           json_key_column = {}
           json_key_association = Set.new
           column_metadata = resource_class.query64_get_all_metadata
-          get_label_by_raw_name = -> (raw_name) { 
-            metadata = column_metadata.find do |meta|
-              meta[:raw_field_name] == raw_name
-            end
-            if metadata != nil
-              metadata[:label_name]
-            end
-          }
           columns_to_display = query64_params[:columnsToDisplay] || []
           columns_to_display.each do |column_to_display|
             if column_to_display.exclude?('.')
@@ -35,6 +38,8 @@ module Query64
           end
 
           csv_content = CSV.generate(headers: true, col_sep: ';') do |csv|
+
+            # Header
             header_row = []
             data_rows.first.keys.each do |key|
               if json_key_association.exclude?(key)
@@ -45,13 +50,14 @@ module Query64
                 end
                 if json_assoc
                   json_key_column[json_assoc.to_sym].each do |json_col_name|
-                    header_row << "#{key} : #{json_col_name}"
+                    header_row << "#{key}.#{json_col_name}"
                   end
                 end
               end
             end
             csv << header_row
 
+            # Rows
             data_rows.each do |data_row|
               row = []
               data_row.each do |entry|
@@ -71,6 +77,29 @@ module Query64
 
               csv << row
             end
+
+            # Format everything by opt
+            header_row.each do |header_entry|
+              if query64_params[:columnsToDisplay].exclude?(header_entry)
+                csv.delete(header_entry)
+                next
+              end
+              metadata = column_metadata.find do |meta|
+                meta[:raw_field_name] == header_entry
+              end
+              if metadata.nil?
+                next
+              end
+              formatter = formater_by_type[metadata[:field_type]]
+              if formatter != nil
+                csv[header_entry] = csv[header_entry].map(&:formatter)
+              end
+              if opt[:use_dictionary]
+                header_entry = metadata[:label_name]
+              end
+
+            end
+
           end
           return csv_content
 

@@ -35,7 +35,7 @@ module Query64
     end
   end
 
-  def self.export(params, opt = { format: :csv, use_header_dictionary: true })
+  def self.export(params, opt = {})
     safe_exec do
       resource_class = ensure_params_and_resource_are_valid(params)
       query64_params = params[:query64Params]
