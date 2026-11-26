@@ -3,16 +3,16 @@ require 'csv'
 module Query64
   class Export
     
-    def self.get_data(data_rows, query64_params, format, opt = {})
+    def self.get_data(data_rows, query64_params, opt = { format: :raw })
       if data_rows.count == 0
         return data_rows
       end
 
-      case format
+      case opt[:format]
         when :csv
           json_key_column = {}
           json_key_association = Set.new
-          columns_to_display = data_rows.first.keys
+          columns_to_display = query64_params[:columnsToDisplay] || []
           columns_to_display.each do |column_to_display|
             if column_to_display.exclude?('.')
               next
