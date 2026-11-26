@@ -41,11 +41,11 @@ module Query64
                 header_row << key
               else
                 json_assoc = json_key_association.find do |entry_set|
-                  entry_set == entry[0]
+                  entry_set == key
                 end
                 if json_assoc
                   json_key_column[json_assoc.to_sym].each do |json_col_name|
-                    header_row << "#{entry[0]} : #{json_col_name}"
+                    header_row << "#{key} : #{json_col_name}"
                   end
                 end
               end
