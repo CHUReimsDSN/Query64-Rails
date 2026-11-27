@@ -22,6 +22,8 @@ module Query64
       case opt[:format]
         when :csv
           json_key_column = {}
+          header_row = []
+          rows = []
           json_key_association = Set.new
           column_metadata = resource_class.query64_get_all_metadata
           columns_to_display = query64_params[:columnsToDisplay] || []
@@ -38,9 +40,9 @@ module Query64
           end
 
           csv_content = CSV.generate(headers: true, col_sep: ';') do |csv|
+            1.times do
 
             # Header
-            header_row = []
             data_rows.first.keys.each do |key|
               if json_key_association.exclude?(key)
                 header_row << key
@@ -57,7 +59,6 @@ module Query64
             end
 
             # Rows
-            rows = []
             data_rows.each do |data_row|
               row = []
               data_row.each do |entry|
@@ -76,6 +77,8 @@ module Query64
               end
 
               rows << row
+            end
+
             end
 
             # Format everything by opt
