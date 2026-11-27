@@ -40,7 +40,6 @@ module Query64
           end
 
           csv_content = CSV.generate(headers: true, col_sep: ';') do |csv|
-            1.times do
 
             # Header
             data_rows.first.keys.each do |key|
@@ -79,8 +78,6 @@ module Query64
               rows << row
             end
 
-            end
-
             # Format everything by opt
             header_row.each_with_index do |header_entry|
               if query64_params[:columnsToDisplay].exclude?(header_entry)
@@ -101,7 +98,8 @@ module Query64
                 csv[header_entry] = csv[header_entry].map(&:formatter)
               end
               if opt[:use_dictionary]
-                header_entry = metadata[:label_name] # TODO check
+                index_to_rename = header_row.index(header_entry)
+                header_row.at(index_to_rename) = metadata[:label_name]
               end
             end
 
