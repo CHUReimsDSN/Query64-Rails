@@ -4,6 +4,13 @@ title: Changelog
 
 # Changelog
 
+### 2.2.4
+
+- Correction d'un bug qui désynchroniser les lignes du header dans l'export au format `csv`
+- Ajout de plusieurs options de formatage pour l'export
+
+<br />
+
 ### 2.2.3
 
 - Correction d'un problème sur les tris des relations
