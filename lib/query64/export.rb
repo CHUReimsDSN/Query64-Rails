@@ -79,15 +79,11 @@ module Query64
             end
 
             # Format everything by opt
-            header_row.each_with_index do |header_entry|
+            header_row.each_with_index do |header_entry, header_index|
               if query64_params[:columnsToDisplay].exclude?(header_entry)
-                index_to_remove = header_row.index(header_entry)
-                if index_to_remove.nil?
-                  next
-                end
-                header_row.delete_at(index_to_remove)
+                header_row.delete_at(header_index)
                 rows.each do |row|
-                  row.delete_at(index_to_remove)
+                  row.delete_at(header_index)
                 end
                 next
               end
@@ -99,14 +95,12 @@ module Query64
               end
               formatter = formater_by_type[metadata[:field_type]]
               if formatter != nil
-                csv[header_entry] = csv[header_entry].map(&:formatter)
+                rows.each do |row|
+                  row[header_index] = formatter.call(row[header_index])
+                end
               end
               if opt[:use_dictionary]
-                index_to_rename = header_row.index(header_entry)
-                if index_to_rename.nil?
-                  next
-                end
-                header_row[index_to_rename] = metadata[:label_name]
+                header_row[header_index] = metadata[:label_name]
               end
             end
 
