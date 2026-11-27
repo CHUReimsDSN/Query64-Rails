@@ -99,7 +99,7 @@ module Query64
               end
               if opt[:use_dictionary]
                 index_to_rename = header_row.index(header_entry)
-                header_row.at(index_to_rename) = metadata[:label_name]
+                header_row[index_to_rename] = metadata[:label_name]
               end
             end
 
